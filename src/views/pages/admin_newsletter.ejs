@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title><%= title %></title></head>
+<body>
+  <%- include("../partials/header") %>
+  <h1><%= title %></h1>
+
+  <% if (signups.length === 0) { %>
+    <p>No newsletter signups yet.</p>
+  <% } else { %>
+    <table border="1" cellpadding="6">
+      <tr>
+        <th>Email</th>
+        <th>Created At</th>
+        <th>Actions</th>
+      </tr>
+      <% signups.forEach(signup => { %>
+        <tr>
+          <td><%= signup.email %></td>
+          <td><%= signup.created_at %></td>
+          <td>
+            <form action="/admin/newsletter/<%= signup.id %>/delete" method="POST" style="display:inline;">
+              <button type="submit" onclick="return confirm('Remove this signup?');">Remove</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  <% } %>
+
+  <p><a href="/admin">Back to Admin</a></p>
+</body>
+</html>

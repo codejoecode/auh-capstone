@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <style id="site-page-styles">
+<%- include("../partials/public_page_styles") %>
+<%- include("../partials/immersive_hero_styles") %>
+
+    .checkout-page {
+      position: relative;
+      background: #050505;
+    }
+
+    .checkout-experience {
+      position: relative;
+      min-height: 100vh;
+    }
+
+    .checkout-experience__backdrop {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .checkout-experience__backdrop::after {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 38%, rgba(0, 0, 0, 0.36));
+      content: "";
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .checkout-experience__content {
+      position: relative;
+      z-index: 2;
+      width: min(1180px, calc(100% - 40px));
+      margin: -100vh auto 0;
+      padding: 136px 0 96px;
+    }
+
+    .checkout-intro {
+      width: min(760px, 100%);
+      margin-bottom: 32px;
+    }
+
+    .checkout-intro__title {
+      max-width: 9em;
+      margin: 0;
+      font-size: clamp(2.5rem, 8vw, 6.2rem);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .checkout-panel {
+      width: min(760px, 100%);
+      padding: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+    }
+
+    .checkout-heading {
+      margin: 0 0 24px;
+      color: rgba(244, 241, 236, 0.72);
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+    }
+
+    .checkout-copy,
+    .checkout-summary,
+    .checkout-links,
+    .checkout-line {
+      color: rgba(244, 241, 236, 0.82);
+    }
+
+    .checkout-copy,
+    .checkout-summary {
+      margin: 0 0 20px;
+    }
+
+    .checkout-items {
+      list-style: none;
+      margin: 0 0 24px;
+      padding: 0;
+      display: grid;
+      gap: 16px;
+    }
+
+    .checkout-item {
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .checkout-item__title {
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .checkout-line {
+      margin: 8px 0 0;
+    }
+
+    .checkout-form {
+      display: grid;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .checkout-form label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .checkout-form input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(0, 0, 0, 0.28);
+      color: #f4f1ec;
+      font: inherit;
+    }
+
+    .checkout-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .checkout-actions a,
+    .checkout-form button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 18px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      color: #f4f1ec;
+      background: transparent;
+      font: inherit;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease, opacity 180ms ease;
+    }
+
+    .checkout-actions a:hover,
+    .checkout-actions a:focus-visible,
+    .checkout-form button:hover,
+    .checkout-form button:focus-visible {
+      background: #fff;
+      color: #050505;
+    }
+
+    @media (max-width: 820px) {
+      .checkout-experience__content {
+        width: min(calc(100% - 28px), 1180px);
+        padding-top: 122px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .checkout-experience__backdrop {
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 100vh;
+      }
+
+      .checkout-experience__content {
+        margin-top: 0;
+        padding-top: 108px;
+      }
+
+      .checkout-intro__title {
+        max-width: 100%;
+        font-size: clamp(2.2rem, 14vw, 4rem);
+      }
+
+      .checkout-panel {
+        padding: 24px 18px;
+      }
+    }
+  </style>
+</head>
+<body class="public-page-template" data-shell-page="public">
+  <%- include("../partials/header") %>
+  <main id="site-shell-content" class="checkout-page">
+    <section class="checkout-experience" aria-labelledby="checkout-title">
+      <div class="checkout-experience__backdrop immersive-hero" aria-hidden="true">
+        <video class="immersive-hero__video" autoplay muted loop playsinline>
+          <source src="/videos/auhVHScheckout.mp4" type="video/mp4" />
+        </video>
+        <div class="immersive-hero__shade"></div>
+        <div class="immersive-hero__noise"></div>
+      </div>
+
+      <div class="checkout-experience__content">
+        <section class="checkout-intro">
+          <h1 id="checkout-title" class="checkout-intro__title">Checkout</h1>
+        </section>
+
+        <section id="page-content" aria-labelledby="checkout-heading">
+          <div class="checkout-panel">
+            <h2 id="checkout-heading" class="checkout-heading">Order Summary</h2>
+
+            <p class="checkout-copy">This is a mock checkout for the capstone project. No real payment will be processed.</p>
+
+            <ul class="checkout-items">
+              <% cart.forEach(item => { %>
+                <li class="checkout-item">
+                  <h3 class="checkout-item__title"><%= item.productName %></h3>
+                  <p class="checkout-line">
+                    <%= item.variantName %> -
+                    $<%= (item.priceCents / 100).toFixed(2) %> x <%= item.qty %>
+                  </p>
+                </li>
+              <% }) %>
+            </ul>
+
+            <p class="checkout-summary">Subtotal: $<%= (subtotalCents / 100).toFixed(2) %></p>
+
+            <form action="/checkout" method="POST" class="checkout-form">
+              <div>
+                <label for="customerName">Name</label>
+                <input id="customerName" name="customerName" required />
+              </div>
+
+              <div>
+                <label for="customerEmail">Email</label>
+                <input id="customerEmail" name="customerEmail" type="email" required />
+              </div>
+
+              <button type="submit">Place Mock Order</button>
+            </form>
+
+            <div class="checkout-actions">
+              <a href="/cart">Back to Cart</a>
+              <a href="/home">Home</a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <%- include("../partials/public_shell_bootstrap") %>
+</body>
+</html>

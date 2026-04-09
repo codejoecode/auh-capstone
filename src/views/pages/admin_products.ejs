@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title><%= title %></title></head>
+<body>
+  <%- include("../partials/header") %>
+  <h1><%= title %></h1>
+
+  <p><a href="/admin/products/new">+ New Product</a></p>
+
+  <table border="1" cellpadding="6">
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Slug</th>
+      <th>Active</th>
+      <th>Actions</th>
+    </tr>
+    <% products.forEach(p => { %>
+      <tr>
+  <td><%= p.name %></td>
+  <td><%= p.type %></td>
+  <td><%= p.slug %></td>
+  <td><%= p.is_active ? "Active" : "Inactive" %></td>
+  <td>
+    <a href="/admin/products/<%= p.id %>/edit">Edit</a>
+    <form action="/admin/products/<%= p.id %>/toggle" method="POST" style="display:inline;">
+      <button type="submit"><%= p.is_active ? "Deactivate" : "Activate" %></button>
+    </form>
+  </td>
+</tr>
+    <% }) %>
+  </table>
+
+  <p><a href="/admin">Back to Admin</a></p>
+</body>
+</html>

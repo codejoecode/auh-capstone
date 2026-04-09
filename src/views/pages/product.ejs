@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <style id="site-page-styles">
+<%- include("../partials/public_page_styles") %>
+<%- include("../partials/immersive_hero_styles") %>
+
+    .product-page {
+      position: relative;
+      background: #050505;
+    }
+
+    .product-experience {
+      position: relative;
+      min-height: 100vh;
+    }
+
+    .product-experience__backdrop {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .product-experience__backdrop::after {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 38%, rgba(0, 0, 0, 0.36));
+      content: "";
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .product-experience__content {
+      position: relative;
+      z-index: 2;
+      width: min(1180px, calc(100% - 40px));
+      margin: -100vh auto 0;
+      padding: 136px 0 96px;
+    }
+
+    .product-intro {
+      width: min(880px, 100%);
+      margin-bottom: 30px;
+    }
+
+    .product-back {
+      display: inline-flex;
+      margin-bottom: 18px;
+      color: rgba(244, 241, 236, 0.72);
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .product-back:hover,
+    .product-back:focus-visible {
+      color: #fff;
+    }
+
+    .product-title {
+      max-width: 10em;
+      margin: 0;
+      font-size: clamp(2.4rem, 8vw, 5.8rem);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .product-description {
+      width: min(560px, 100%);
+      margin: 18px 0 0;
+      color: rgba(244, 241, 236, 0.8);
+      line-height: 1.7;
+    }
+
+    .product-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 380px) minmax(0, 1fr);
+      gap: 30px;
+      align-items: start;
+    }
+
+    .product-media,
+    .product-panel {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+    }
+
+    .product-media {
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.24);
+    }
+
+    .product-media img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    .product-media__main {
+      display: block;
+      width: 100%;
+    }
+
+    .product-thumbnails {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+      gap: 10px;
+      padding: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .product-thumbnail {
+      padding: 0;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: #000;
+      cursor: pointer;
+    }
+
+    .product-thumbnail img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      display: block;
+    }
+
+    .product-merch-picker {
+      margin: 0 0 22px;
+    }
+
+    .product-merch-picker label {
+      display: block;
+      margin-bottom: 8px;
+      color: rgba(244, 241, 236, 0.72);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .product-merch-picker select {
+      width: 100%;
+      max-width: 320px;
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #f4f1ec;
+      background: rgba(0, 0, 0, 0.38);
+      font: inherit;
+    }
+
+    .product-panel {
+      padding: 30px;
+    }
+
+    .product-section-title {
+      margin: 0 0 22px;
+      color: rgba(244, 241, 236, 0.72);
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+    }
+
+    .product-detail {
+      margin: 0 0 12px;
+      color: rgba(244, 241, 236, 0.82);
+    }
+
+    .product-note {
+      margin: 0 0 18px;
+      color: rgba(244, 241, 236, 0.78);
+    }
+
+    .product-variant-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 16px;
+    }
+
+    .product-variant {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .product-variant__name {
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .product-variant__meta {
+      margin: 8px 0 0;
+      color: rgba(244, 241, 236, 0.78);
+    }
+
+    .product-actions,
+    .product-variant form {
+      margin: 0;
+    }
+
+    .product-button,
+    .product-actions a,
+    .product-variant button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 18px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      color: #f4f1ec;
+      background: transparent;
+      font: inherit;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease, opacity 180ms ease;
+    }
+
+    .product-button:hover,
+    .product-button:focus-visible,
+    .product-actions a:hover,
+    .product-actions a:focus-visible,
+    .product-variant button:hover,
+    .product-variant button:focus-visible {
+      background: #fff;
+      color: #050505;
+    }
+
+    .product-actions {
+      margin-top: 24px;
+    }
+
+    @media (max-width: 820px) {
+      .product-experience__content {
+        width: min(calc(100% - 28px), 1180px);
+        padding-top: 122px;
+      }
+
+      .product-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .product-experience__backdrop {
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 100vh;
+      }
+
+      .product-experience__content {
+        margin-top: 0;
+        padding-top: 108px;
+      }
+
+      .product-title {
+        max-width: 100%;
+        font-size: clamp(2.2rem, 14vw, 4rem);
+      }
+
+      .product-panel {
+        padding: 24px 18px;
+      }
+
+      .product-variant {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="public-page-template" data-shell-page="public">
+  <% const merchImageList = merchImages && merchImages.images ? merchImages.images : []; %>
+  <% const merchDefaultImage = merchImages && merchImages.defaultImage ? merchImages.defaultImage : null; %>
+  <%- include("../partials/header") %>
+  <main id="site-shell-content" class="product-page">
+    <section class="product-experience" aria-labelledby="product-title">
+      <div class="product-experience__backdrop immersive-hero" aria-hidden="true">
+        <video class="immersive-hero__video" autoplay muted loop playsinline>
+          <source src="/videos/auhVHSproduct.mp4" type="video/mp4" />
+        </video>
+        <div class="immersive-hero__shade"></div>
+        <div class="immersive-hero__noise"></div>
+      </div>
+
+      <div class="product-experience__content">
+        <section class="product-intro">
+          <a href="<%= product.type === 'ticket' ? '/tickets' : '/store' %>" class="product-back">Back</a>
+          <h1 id="product-title" class="product-title"><%= product.name %></h1>
+          <% if (product.description) { %>
+            <p class="product-description"><%= product.description %></p>
+          <% } %>
+        </section>
+
+        <section id="page-content" class="product-layout" aria-labelledby="product-panel-heading">
+          <% if (product.type === "merch" && merchDefaultImage) { %>
+            <div class="product-media">
+              <img
+                id="productMainImage"
+                class="product-media__main"
+                src="<%= merchDefaultImage.image_path %>"
+                alt="<%= merchDefaultImage.alt_text || product.name %>"
+              >
+              <% if (merchImageList.length > 1) { %>
+                <div class="product-thumbnails">
+                  <% merchImageList.forEach((image) => { %>
+                    <button
+                      type="button"
+                      class="product-thumbnail"
+                      data-image-path="<%= image.image_path %>"
+                      data-image-alt="<%= image.alt_text || product.name %>"
+                    >
+                      <img src="<%= image.image_path %>" alt="<%= image.alt_text || product.name %>">
+                    </button>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+          <% } else if (product.image_url) { %>
+            <div class="product-media">
+              <img src="<%= product.image_url %>" alt="<%= product.name %>">
+            </div>
+          <% } %>
+
+          <div class="product-panel">
+            <h2 id="product-panel-heading" class="product-section-title">
+              <%= product.type === "ticket" ? "Ticket Options" : "Available Options" %>
+            </h2>
+
+            <% if (product.type === "ticket") { %>
+              <% if (product.event_date) { %>
+                <p class="product-detail"><strong>Date:</strong> <%= product.event_date %></p>
+              <% } %>
+
+              <% if (product.venue_name || product.venue_city || product.venue_state) { %>
+                <p class="product-detail">
+                  <strong>Venue:</strong>
+                  <%= product.venue_name || "" %>
+                  <% if (product.venue_name && (product.venue_city || product.venue_state)) { %>, <% } %>
+                  <%= [product.venue_city, product.venue_state].filter(Boolean).join(", ") %>
+                </p>
+              <% } %>
+            <% } %>
+
+            <% if (product.type === "ticket") { %>
+              <% if (product.ticket_mode === "external") { %>
+                <% if (!product.is_on_sale) { %>
+                  <p class="product-note"><em>Tickets are not on sale yet.</em></p>
+                <% } else if (product.external_url) { %>
+                  <p class="product-actions"><a href="<%= product.external_url %>" class="product-button">Buy Tickets</a></p>
+                <% } else { %>
+                  <p class="product-note"><em>Tickets for this show are sold externally.</em></p>
+                <% } %>
+              <% } else if (product.ticket_mode === "doors_only") { %>
+                <p class="product-note"><em>Tickets at the door.</em></p>
+              <% } else if (product.ticket_mode === "free") { %>
+                <p class="product-note"><em>Free show. No purchase required.</em></p>
+              <% } else if (!product.is_on_sale) { %>
+                <p class="product-note"><em>Tickets are not on sale yet.</em></p>
+              <% } else if (variants.length === 0) { %>
+                <p class="product-note"><em>Tickets are not listed yet.</em></p>
+              <% } else { %>
+                <ul class="product-variant-list">
+                  <% variants.forEach(v => { %>
+                    <li class="product-variant">
+                      <div>
+                        <h3 class="product-variant__name"><%= v.name %></h3>
+                        <p class="product-variant__meta">
+                          $<%= (v.price_cents / 100).toFixed(2) %> - Stock: <%= v.stock_qty %>
+                        </p>
+                      </div>
+
+                      <% if (v.stock_qty > 0) { %>
+                        <form action="/cart/add" method="POST">
+                          <input type="hidden" name="variantId" value="<%= v.id %>">
+                          <input type="hidden" name="qty" value="1">
+                          <button type="submit">Add Ticket to Cart</button>
+                        </form>
+                      <% } else { %>
+                        <p class="product-note"><em>Sold out</em></p>
+                      <% } %>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            <% } else { %>
+              <% if (variants.length > 0) { %>
+                <div class="product-merch-picker">
+                  <label for="variantSelect">Preview Variant Image</label>
+                  <select id="variantSelect">
+                    <option value="">Default product image</option>
+                    <% variants.forEach((v) => { %>
+                      <% const variantImage = merchImages.variantImages.find((image) => Number(image.variant_id) === Number(v.id)); %>
+                      <option value="<%= v.id %>" data-image-path="<%= variantImage ? variantImage.image_path : "" %>" data-image-alt="<%= variantImage ? (variantImage.alt_text || product.name) : product.name %>">
+                        <%= v.name %>
+                      </option>
+                    <% }) %>
+                  </select>
+                </div>
+              <% } %>
+
+              <ul class="product-variant-list">
+                <% variants.forEach(v => { %>
+                  <li class="product-variant">
+                    <div>
+                      <h3 class="product-variant__name"><%= v.name %></h3>
+                      <p class="product-variant__meta">
+                        $<%= (v.price_cents / 100).toFixed(2) %> - Stock: <%= v.stock_qty %>
+                      </p>
+                    </div>
+
+                    <% if (v.stock_qty > 0) { %>
+                      <form action="/cart/add" method="POST">
+                        <input type="hidden" name="variantId" value="<%= v.id %>">
+                        <input type="hidden" name="qty" value="1">
+                        <button type="submit">Add to Cart</button>
+                      </form>
+                    <% } else { %>
+                      <p class="product-note"><em>Out of stock</em></p>
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+
+            <p class="product-actions"><a href="/cart">Go to Cart</a></p>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <%- include("../partials/public_shell_bootstrap") %>
+  <% if (product.type === "merch" && merchDefaultImage) { %>
+    <script>
+      const productMainImage = document.getElementById("productMainImage");
+      const variantSelect = document.getElementById("variantSelect");
+      const defaultProductImage = <%- JSON.stringify({
+        path: merchDefaultImage.image_path,
+        alt: merchDefaultImage.alt_text || product.name,
+      }) %>;
+
+      function setMainImage(path, alt) {
+        if (!productMainImage || !path) return;
+        productMainImage.src = path;
+        productMainImage.alt = alt || <%- JSON.stringify(product.name) %>;
+      }
+
+      document.querySelectorAll(".product-thumbnail").forEach((button) => {
+        button.addEventListener("click", () => {
+          setMainImage(button.dataset.imagePath, button.dataset.imageAlt);
+        });
+      });
+
+      if (variantSelect) {
+        variantSelect.addEventListener("change", () => {
+          const selectedOption = variantSelect.options[variantSelect.selectedIndex];
+          const variantImagePath = selectedOption.dataset.imagePath;
+          const variantImageAlt = selectedOption.dataset.imageAlt;
+
+          if (variantImagePath) {
+            setMainImage(variantImagePath, variantImageAlt);
+          } else {
+            setMainImage(defaultProductImage.path, defaultProductImage.alt);
+          }
+        });
+      }
+    </script>
+  <% } %>
+</body>
+</html>

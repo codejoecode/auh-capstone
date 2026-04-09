@@ -1,0 +1,226 @@
+<%
+  const featuredCover =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-label="Moving On / Someone You Adore cover art placeholder">
+        <rect x="40" y="40" width="1120" height="1120" fill="none" stroke="#000" stroke-width="12" />
+        <line x1="120" y1="120" x2="1080" y2="1080" stroke="#000" stroke-width="8" />
+        <line x1="1080" y1="120" x2="120" y2="1080" stroke="#000" stroke-width="8" />
+        <text x="600" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="92" letter-spacing="8">MOVING ON</text>
+        <text x="600" y="650" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" letter-spacing="12">SOMEONE YOU ADORE</text>
+      </svg>
+    `);
+
+  const secondaryCover =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" role="img" aria-label="What Lies Ahead of Me cover art placeholder">
+        <rect x="40" y="40" width="1120" height="1120" fill="none" stroke="#000" stroke-width="12" />
+        <circle cx="600" cy="600" r="330" fill="none" stroke="#000" stroke-width="8" />
+        <text x="600" y="520" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" letter-spacing="8">WHAT LIES</text>
+        <text x="600" y="610" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" letter-spacing="8">AHEAD</text>
+        <text x="600" y="700" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" letter-spacing="8">OF ME</text>
+      </svg>
+    `);
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      color: #000;
+      line-height: 1.5;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .home-page {
+      padding: 0 16px 48px;
+    }
+
+    .content-section {
+      padding: 32px 0;
+    }
+
+    .section-container {
+      max-width: 960px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .section-heading {
+      margin: 0 0 24px;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 1.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .release-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .release-card figure {
+      margin: 0;
+    }
+
+    .release-card img {
+      width: 100%;
+      border: 1px solid #000;
+    }
+
+    .release-card--featured {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .release-card--secondary {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .featured-info,
+    .release-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .featured-info h2,
+    .release-info h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      border: 1px solid #000;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .video-frame {
+      max-width: 800px;
+      margin: 0 auto;
+      aspect-ratio: 16 / 9;
+      border: 1px solid #000;
+    }
+
+    .video-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    @media (max-width: 640px) {
+      .featured-info h2,
+      .release-info h2,
+      .section-heading h2 {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <%- include("../partials/header") %>
+
+  <main class="home-page">
+    <section class="content-section" aria-labelledby="featured-release-heading">
+      <div class="section-container">
+        <div class="section-heading">
+          <h2 id="featured-release-heading">Featured Release</h2>
+        </div>
+
+        <article class="release-card release-card--featured">
+          <figure>
+            <img
+              src="<%= featuredCover %>"
+              alt="Placeholder cover art for Moving On / Someone You Adore"
+            />
+          </figure>
+
+          <div class="featured-info">
+            <h2>MOVING ON / SOMEONE YOU ADORE</h2>
+
+            <a href="https://dthw.sh/allunderheavenhigh" target="_blank" rel="noreferrer" class="button">
+              Listen Now
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="content-section" aria-labelledby="secondary-release-heading">
+      <div class="section-container">
+        <div class="section-heading">
+          <h2 id="secondary-release-heading">Secondary Release</h2>
+        </div>
+
+        <article class="release-card release-card--secondary">
+          <figure>
+            <img
+              src="<%= secondaryCover %>"
+              alt="Placeholder cover art for What Lies Ahead of Me"
+            />
+          </figure>
+
+          <div class="release-info">
+            <h2>WHAT LIES AHEAD OF ME</h2>
+
+            <a href="https://dthw.sh/whatliesaheadofme" target="_blank" rel="noreferrer" class="button">
+              Listen Now
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="content-section" aria-labelledby="video-section-heading">
+      <div class="section-container">
+        <div class="section-heading">
+          <h2 id="video-section-heading">Video</h2>
+        </div>
+
+        <div class="video-frame">
+          <iframe
+            src="https://www.youtube.com/embed/HkWSK_R955M"
+            title="all under heaven - Always | Audiotree Live"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

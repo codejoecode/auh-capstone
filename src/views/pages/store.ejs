@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <style id="site-page-styles">
+<%- include("../partials/public_page_styles") %>
+<%- include("../partials/immersive_hero_styles") %>
+
+    .store-page {
+      position: relative;
+      background: #050505;
+    }
+
+    .store-experience {
+      position: relative;
+      min-height: 100vh;
+    }
+
+    .store-experience__backdrop {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .store-experience__backdrop::after {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.26), transparent 38%, rgba(0, 0, 0, 0.34));
+      content: "";
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .store-experience__content {
+      position: relative;
+      z-index: 2;
+      width: min(1180px, calc(100% - 40px));
+      margin: -100vh auto 0;
+      padding: 148px 0 96px;
+    }
+
+    .store-intro {
+      width: min(760px, 100%);
+      margin-bottom: 44px;
+    }
+
+    .store-intro__eyebrow,
+    .store-card__meta {
+      margin: 0;
+      color: rgba(244, 241, 236, 0.58);
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    .store-intro__title {
+      max-width: 9em;
+      margin: 0;
+      font-size: clamp(2.5rem, 8vw, 6.2rem);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .store-catalog {
+      padding: 0;
+    }
+
+    .store-heading {
+      margin: 0 0 34px;
+      color: rgba(244, 241, 236, 0.72);
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.32em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .store-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 28px;
+      align-items: start;
+    }
+
+    .store-card {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 18px;
+      color: #f4f1ec;
+      padding: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .store-card__media {
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      overflow: hidden;
+    }
+
+    .store-card__media img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    .store-card__title,
+    .store-heading {
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .store-card__title {
+      font-size: 1rem;
+      letter-spacing: 0.14em;
+      line-height: 1.45;
+    }
+
+    .store-card__description {
+      margin: 0;
+      color: rgba(244, 241, 236, 0.78);
+    }
+
+    .store-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 18px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      color: #f4f1ec;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: background 180ms ease, color 180ms ease, opacity 180ms ease;
+      align-self: flex-start;
+    }
+
+    .store-button:hover,
+    .store-button:focus-visible {
+      background: #fff;
+      color: #050505;
+    }
+
+    .store-empty {
+      margin: 0;
+      color: rgba(244, 241, 236, 0.78);
+      text-align: center;
+    }
+
+    @media (max-width: 820px) {
+      .store-experience__content {
+        width: min(100% - 28px, 1180px);
+        padding-top: 128px;
+      }
+
+      .store-intro,
+      .store-catalog {
+      }
+      .store-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .store-experience__backdrop {
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 100vh;
+      }
+
+      .store-experience__content {
+        margin-top: 0;
+        padding-top: 108px;
+      }
+
+      .store-intro {
+        margin-bottom: 28px;
+      }
+
+      .store-intro__title {
+        max-width: 100%;
+        font-size: clamp(2.2rem, 14vw, 4rem);
+      }
+
+      .store-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="public-page-template" data-shell-page="public">
+  <%- include("../partials/header") %>
+  <main id="site-shell-content" class="store-page">
+    <section class="store-experience" aria-labelledby="store-title">
+      <div class="store-experience__backdrop immersive-hero" aria-hidden="true">
+        <video class="immersive-hero__video" autoplay muted loop playsinline>
+          <source src="/videos/auhVHS3.mp4" type="video/mp4" />
+        </video>
+        <div class="immersive-hero__shade"></div>
+        <div class="immersive-hero__noise"></div>
+      </div>
+
+      <div class="store-experience__content">
+        <section class="store-intro">
+          <h1 id="store-title" class="store-intro__title">Store</h1>
+        </section>
+
+        <section id="store-catalog" class="store-catalog" aria-labelledby="store-heading">
+          <h2 id="store-heading" class="store-heading">Available Now</h2>
+
+          <% if (items.length === 0) { %>
+            <p class="store-empty">No products are live right now.</p>
+          <% } else { %>
+            <div class="store-grid">
+              <% items.forEach(i => { %>
+                <article class="store-card">
+                  <% if (i.display_image_url) { %>
+                    <div class="store-card__media">
+                      <img src="<%= i.display_image_url %>" alt="<%= i.name %>">
+                    </div>
+                  <% } %>
+                  <p class="store-card__meta">Product</p>
+                  <h3 class="store-card__title"><%= i.name %></h3>
+                  <p class="store-card__description"><%= i.description || "" %></p>
+                  <a href="/product/<%= i.slug %>" class="store-button">View Product</a>
+                </article>
+              <% }) %>
+            </div>
+          <% } %>
+        </section>
+      </div>
+    </section>
+  </main>
+  <%- include("../partials/public_shell_bootstrap") %>
+</body>
+</html>

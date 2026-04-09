@@ -1,0 +1,296 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title><%= title %></title></head>
+<body>
+  <%- include("../partials/header") %>
+  <h1><%= title %></h1>
+
+  <% if (error) { %>
+    <p><strong><%= error %></strong></p>
+  <% } %>
+
+  <form action="/admin/products/<%= product.id %>/edit" method="POST" id="editProductForm">
+    <p>
+      <label>Name</label><br/>
+      <input name="name" value="<%= product.name %>" required>
+    </p>
+
+    <p>
+      <label>Slug (unique, URL-safe)</label><br/>
+      <input
+        name="slug"
+        value="<%= product.slug %>"
+        pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+        title="Use lowercase letters, numbers, and hyphens only."
+        autocapitalize="off"
+        autocomplete="off"
+        spellcheck="false"
+        required
+      >
+    </p>
+
+    <p>
+      <label>Type</label><br/>
+      <select name="type" id="typeSelect" required>
+        <option value="ticket" <%= product.type === "ticket" ? "selected" : "" %>>ticket</option>
+        <option value="merch" <%= product.type === "merch" ? "selected" : "" %>>merch</option>
+      </select>
+    </p>
+
+    <p>
+      <label>Description</label><br/>
+      <textarea name="description" rows="4"><%= product.description || "" %></textarea>
+    </p>
+
+    <p>
+      <label>Image URL (legacy fallback)</label><br/>
+      <input name="imageUrl" value="<%= product.image_url || "" %>">
+    </p>
+
+    <div id="ticketFields">
+      <hr/>
+      <p><strong>Ticket Details</strong></p>
+
+      <p>
+        <label>Event date</label><br/>
+        <input name="eventDate" id="eventDateInput" type="datetime-local" value="<%= product.event_date || "" %>">
+      </p>
+
+      <p>
+        <label>Venue name</label><br/>
+        <input name="venueName" id="venueNameInput" value="<%= product.venue_name || "" %>">
+      </p>
+
+      <p>
+        <label>Venue city</label><br/>
+        <input name="venueCity" id="venueCityInput" value="<%= product.venue_city || "" %>">
+      </p>
+
+      <p>
+        <label>Venue state</label><br/>
+        <input name="venueState" id="venueStateInput" value="<%= product.venue_state || "" %>">
+      </p>
+
+      <p>
+        <label>Ticket mode</label><br/>
+        <select name="ticketMode" id="ticketModeSelect">
+          <option value="internal" <%= product.ticket_mode === "internal" ? "selected" : "" %>>internal</option>
+          <option value="external" <%= product.ticket_mode === "external" ? "selected" : "" %>>external</option>
+          <option value="doors_only" <%= product.ticket_mode === "doors_only" ? "selected" : "" %>>doors_only</option>
+          <option value="free" <%= product.ticket_mode === "free" ? "selected" : "" %>>free</option>
+        </select>
+      </p>
+
+      <p id="externalUrlWrap">
+        <label id="externalUrlLabel">External URL</label><br/>
+        <input name="externalUrl" id="externalUrlInput" value="<%= product.external_url || "" %>">
+      </p>
+
+      <p>
+        <label>
+          <input name="isOnSale" type="checkbox" value="1" <%= product.is_on_sale ? "checked" : "" %>>
+          On sale
+        </label>
+      </p>
+
+      <p id="ticketModeHelp"></p>
+    </div>
+
+    <button type="submit">Save Changes</button>
+  </form>
+
+  <% if (product.type === "merch") { %>
+    <hr/>
+
+    <h2>Merch Images</h2>
+
+    <% if (imageError) { %>
+      <p><strong><%= imageError %></strong></p>
+    <% } %>
+
+    <form action="/admin/products/<%= product.id %>/images/upload" method="POST" enctype="multipart/form-data">
+      <p>
+        <label>Upload images</label><br/>
+        <input type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple required>
+      </p>
+      <button type="submit">Upload Images</button>
+    </form>
+
+    <% if (productImages.length === 0) { %>
+      <p>No uploaded merch images yet. The legacy product image URL will still work as a fallback.</p>
+    <% } else { %>
+      <table border="1" cellpadding="6">
+        <tr>
+          <th>Preview</th>
+          <th>Stored path</th>
+          <th>Settings</th>
+          <th>Delete</th>
+        </tr>
+        <% productImages.forEach((image) => { %>
+          <tr>
+            <td style="vertical-align:top;">
+              <img src="<%= image.image_path %>" alt="<%= image.alt_text || product.name %>" style="width:120px;height:120px;object-fit:cover;">
+            </td>
+            <td style="vertical-align:top;max-width:260px;word-break:break-all;"><%= image.image_path %></td>
+            <td style="vertical-align:top;">
+              <form action="/admin/products/<%= product.id %>/images/<%= image.id %>/update" method="POST">
+                <p>
+                  <label>Alt text</label><br/>
+                  <input name="altText" value="<%= image.alt_text || "" %>">
+                </p>
+
+                <p>
+                  <label>Sort order</label><br/>
+                  <input name="sortOrder" type="number" value="<%= image.sort_order %>">
+                </p>
+
+                <p>
+                  <label>
+                    <input name="isActive" type="checkbox" value="1" <%= image.is_active ? "checked" : "" %>>
+                    Active
+                  </label>
+                </p>
+
+                <p>
+                  <label>
+                    <input name="isPrimary" type="checkbox" value="1" <%= image.is_primary ? "checked" : "" %>>
+                    Primary image
+                  </label>
+                </p>
+
+                <p>
+                  <label>Variant image for</label><br/>
+                  <select name="variantId">
+                    <option value="">Product gallery image</option>
+                    <% variants.forEach((variant) => { %>
+                      <option value="<%= variant.id %>" <%= Number(image.variant_id) === Number(variant.id) ? "selected" : "" %>>
+                        <%= variant.name %>
+                      </option>
+                    <% }) %>
+                  </select>
+                </p>
+
+                <button type="submit">Save Image Settings</button>
+              </form>
+            </td>
+            <td style="vertical-align:top;">
+              <form action="/admin/products/<%= product.id %>/images/<%= image.id %>/delete" method="POST">
+                <button type="submit">Delete</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </table>
+    <% } %>
+  <% } %>
+
+  <hr/>
+
+  <h2>Variants</h2>
+
+  <% if (variants.length === 0) { %>
+    <p>No variants yet.</p>
+  <% } else { %>
+    <table border="1" cellpadding="6">
+      <tr>
+        <th>Name</th>
+        <th>Price (cents)</th>
+        <th>Stock</th>
+        <th>Active</th>
+        <th>Actions</th>
+      </tr>
+      <% variants.forEach(variant => { %>
+        <tr>
+          <td>
+            <form action="/admin/products/<%= product.id %>/variants/<%= variant.id %>/edit" method="POST">
+              <input name="name" value="<%= variant.name %>" required>
+          </td>
+          <td>
+              <input name="priceCents" type="number" min="1" value="<%= variant.price_cents %>" required>
+          </td>
+          <td>
+              <input name="stockQty" type="number" min="0" value="<%= variant.stock_qty %>" required>
+          </td>
+          <td><%= variant.is_active ? "Active" : "Inactive" %></td>
+          <td>
+              <button type="submit">Save</button>
+            </form>
+            <form action="/admin/products/<%= product.id %>/variants/<%= variant.id %>/toggle" method="POST" style="display:inline;">
+              <button type="submit"><%= variant.is_active ? "Deactivate" : "Activate" %></button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    </table>
+  <% } %>
+
+  <h3>Add Variant</h3>
+
+  <% if (variantError) { %>
+    <p><strong><%= variantError %></strong></p>
+  <% } %>
+
+  <form action="/admin/products/<%= product.id %>/variants/new" method="POST">
+    <p>
+      <label>Variant Name</label><br/>
+      <input name="name" required>
+    </p>
+
+    <p>
+      <label>Price (cents)</label><br/>
+      <input name="priceCents" type="number" min="1" placeholder="2500" required>
+    </p>
+
+    <p>
+      <label>Stock quantity</label><br/>
+      <input name="stockQty" type="number" min="0" placeholder="25" required>
+    </p>
+
+    <button type="submit">Add Variant</button>
+  </form>
+
+  <p><a href="/admin/products">Back</a></p>
+
+  <script>
+    const typeSelect = document.getElementById("typeSelect");
+    const ticketModeSelect = document.getElementById("ticketModeSelect");
+    const ticketFields = document.getElementById("ticketFields");
+    const ticketModeHelp = document.getElementById("ticketModeHelp");
+    const externalUrlWrap = document.getElementById("externalUrlWrap");
+    const externalUrlLabel = document.getElementById("externalUrlLabel");
+    const eventDateInput = document.getElementById("eventDateInput");
+    const venueNameInput = document.getElementById("venueNameInput");
+    const venueCityInput = document.getElementById("venueCityInput");
+    const venueStateInput = document.getElementById("venueStateInput");
+    const externalUrlInput = document.getElementById("externalUrlInput");
+
+    function syncTicketFields() {
+      const isTicket = typeSelect.value === "ticket";
+      const isExternal = isTicket && ticketModeSelect.value === "external";
+
+      ticketFields.style.display = isTicket ? "block" : "none";
+      externalUrlWrap.style.display = isTicket ? "block" : "none";
+      externalUrlLabel.textContent = isExternal ? "External URL" : "External URL (only used for external mode)";
+
+      eventDateInput.required = isTicket;
+      venueNameInput.required = isTicket;
+      venueCityInput.required = isTicket;
+      venueStateInput.required = isTicket;
+      ticketModeSelect.required = isTicket;
+      externalUrlInput.required = isExternal;
+
+      if (!isTicket) {
+        ticketModeHelp.textContent = "";
+      } else if (ticketModeSelect.value === "internal") {
+        ticketModeHelp.textContent = "Internal tickets use the variant table below for pricing and inventory.";
+      } else {
+        ticketModeHelp.textContent = "Non-internal ticket modes do not require variants, but existing variants are preserved.";
+      }
+    }
+
+    typeSelect.addEventListener("change", syncTicketFields);
+    ticketModeSelect.addEventListener("change", syncTicketFields);
+    syncTicketFields();
+  </script>
+</body>
+</html>

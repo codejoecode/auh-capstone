@@ -1,0 +1,434 @@
+<div id="site-persistent-audio-root" hidden aria-hidden="true">
+  <audio id="site-global-audio" preload="auto" loop>
+    <source src="<%= audioSource %>" type="audio/mpeg" />
+  </audio>
+</div>
+
+<script>
+  (function () {
+    if (window.__auhPublicShellInitialized) return;
+    window.__auhPublicShellInitialized = true;
+
+    var STORAGE_KEYS = {
+      started: "auh.audio.started",
+      playing: "auh.audio.playing",
+      muted: "auh.audio.muted",
+      volume: "auh.audio.volume",
+      previousVolume: "auh.audio.previousVolume"
+    };
+    var DEFAULT_VOLUME = 0.2;
+    var audio = document.getElementById("site-global-audio");
+    var activeRequestId = 0;
+
+    if (!audio) return;
+
+    function readBool(key, fallback) {
+      var value = localStorage.getItem(key);
+      if (value === null) return fallback;
+      return value === "true";
+    }
+
+    function writeBool(key, value) {
+      localStorage.setItem(key, value ? "true" : "false");
+    }
+
+    function readNumber(key, fallback) {
+      var value = Number(localStorage.getItem(key));
+
+      if (!isFinite(value)) return fallback;
+      return value;
+    }
+
+    function clampVolume(value) {
+      return Math.min(1, Math.max(0, value));
+    }
+
+    function isPublicShellPath(url) {
+      if (!url || url.origin !== window.location.origin) return false;
+      if (url.pathname === "/") return false;
+      if (url.pathname.indexOf("/admin") === 0) return false;
+      return true;
+    }
+
+    function closeNavMenu() {
+      var menu = document.getElementById("site-nav-menu");
+      var toggle = document.querySelector("[data-nav-toggle]");
+
+      if (!menu || !toggle) return;
+
+      menu.setAttribute("hidden", "");
+      toggle.setAttribute("aria-expanded", "false");
+    }
+
+    function syncAudioUi() {
+      var playButtons = document.querySelectorAll("[data-audio-play]");
+      var muteButtons = document.querySelectorAll("[data-audio-mute]");
+      var sliders = document.querySelectorAll("[data-audio-volume]");
+      var isMuted = audio.muted || audio.volume === 0;
+      var isPlaying = !audio.paused;
+
+      playButtons.forEach(function (button) {
+        var icon = button.querySelector(".site-audio__button-icon");
+
+        if (icon) {
+          icon.textContent = isPlaying ? "\u275A\u275A" : "\u25B6";
+        }
+
+        button.setAttribute("aria-label", isPlaying ? "Pause background audio" : "Play background audio");
+        button.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+      });
+
+      muteButtons.forEach(function (button) {
+        var icon = button.querySelector(".site-audio__button-icon");
+
+        if (icon) {
+          icon.textContent = isMuted ? "\uD83D\uDD07" : "\uD83D\uDD0A";
+        }
+
+        button.setAttribute("aria-label", isMuted ? "Unmute background audio" : "Mute background audio");
+        button.setAttribute("aria-pressed", isMuted ? "true" : "false");
+      });
+
+      sliders.forEach(function (slider) {
+        slider.value = String(audio.volume);
+      });
+    }
+
+    function applyStoredVolume() {
+      var storedVolume = clampVolume(readNumber(STORAGE_KEYS.volume, DEFAULT_VOLUME));
+      var previousVolume = clampVolume(readNumber(STORAGE_KEYS.previousVolume, storedVolume || DEFAULT_VOLUME));
+
+      audio.volume = storedVolume;
+
+      if (storedVolume > 0) {
+        writeBool(STORAGE_KEYS.muted, false);
+        localStorage.setItem(STORAGE_KEYS.previousVolume, String(storedVolume));
+      } else if (previousVolume > 0) {
+        localStorage.setItem(STORAGE_KEYS.previousVolume, String(previousVolume));
+      }
+
+      audio.muted = readBool(STORAGE_KEYS.muted, false) || storedVolume === 0;
+    }
+
+    // Keep one audio node alive while we swap header/content/style markers around it.
+    function applyStoredAudioState() {
+      var started = readBool(STORAGE_KEYS.started, false);
+      var shouldPlay = readBool(STORAGE_KEYS.playing, false);
+      var playAttempt;
+
+      applyStoredVolume();
+
+      if (!started || !shouldPlay) {
+        audio.pause();
+        syncAudioUi();
+        return Promise.resolve(false);
+      }
+
+      playAttempt = audio.play();
+
+      if (!playAttempt || typeof playAttempt.then !== "function") {
+        syncAudioUi();
+        return Promise.resolve(true);
+      }
+
+      return playAttempt.then(function () {
+        syncAudioUi();
+        return true;
+      }).catch(function () {
+        syncAudioUi();
+        return false;
+      });
+    }
+
+    // The intro ENTER click is our first trusted gesture, so we start playback before shell navigation.
+    function startAudioFromGesture() {
+      var playAttempt;
+
+      writeBool(STORAGE_KEYS.started, true);
+      writeBool(STORAGE_KEYS.playing, true);
+      audio.muted = false;
+
+      if (audio.volume === 0) {
+        audio.volume = DEFAULT_VOLUME;
+      }
+
+      localStorage.setItem(STORAGE_KEYS.volume, String(audio.volume));
+      localStorage.setItem(STORAGE_KEYS.previousVolume, String(audio.volume));
+      writeBool(STORAGE_KEYS.muted, false);
+
+      playAttempt = audio.play();
+
+      if (!playAttempt || typeof playAttempt.then !== "function") {
+        syncAudioUi();
+        return Promise.resolve(true);
+      }
+
+      return playAttempt.then(function () {
+        syncAudioUi();
+        return true;
+      }).catch(function () {
+        syncAudioUi();
+        return false;
+      });
+    }
+
+    function updateBodyFrom(nextBody) {
+      document.body.className = nextBody.className;
+
+      Array.from(document.body.attributes).forEach(function (attribute) {
+        if (attribute.name.indexOf("data-") === 0) {
+          document.body.removeAttribute(attribute.name);
+        }
+      });
+
+      Array.from(nextBody.attributes).forEach(function (attribute) {
+        if (attribute.name.indexOf("data-") === 0) {
+          document.body.setAttribute(attribute.name, attribute.value);
+        }
+      });
+    }
+
+    function replaceShellNode(selector, nextDocument) {
+      var currentNode = document.querySelector(selector);
+      var nextNode = nextDocument.querySelector(selector);
+
+      if (!currentNode || !nextNode) {
+        throw new Error("Missing shell node for " + selector);
+      }
+
+      currentNode.replaceWith(nextNode);
+    }
+
+    // Swap only the public shell regions and the page-scoped styles/title/body class.
+    function applyDocumentState(nextDocument) {
+      var nextTitle = nextDocument.querySelector("title");
+
+      replaceShellNode("#public-shell-header", nextDocument);
+      replaceShellNode("#site-shell-content", nextDocument);
+      replaceShellNode("#site-page-styles", nextDocument);
+
+      if (nextTitle) {
+        document.title = nextTitle.textContent;
+      }
+
+      updateBodyFrom(nextDocument.body);
+      closeNavMenu();
+      syncAudioUi();
+    }
+
+    function scrollAfterNavigation(url, fromPopState) {
+      if (url.hash) {
+        var target = document.getElementById(url.hash.slice(1));
+        if (target) {
+          target.scrollIntoView();
+          return;
+        }
+      }
+
+      if (!fromPopState) {
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function fetchAndSwap(url, options) {
+      var requestId = ++activeRequestId;
+
+      return fetch(url.toString(), {
+        credentials: "same-origin",
+        headers: {
+          "Accept": "text/html",
+          "X-Requested-With": "auh-public-shell"
+        }
+      }).then(function (response) {
+        if (!response.ok) {
+          throw new Error("Failed to load page");
+        }
+
+        return response.text().then(function (html) {
+          return {
+            html: html,
+            finalUrl: new URL(response.url, window.location.origin)
+          };
+        });
+      }).then(function (result) {
+        if (requestId !== activeRequestId) return;
+
+        var nextDocument = new DOMParser().parseFromString(result.html, "text/html");
+        applyDocumentState(nextDocument);
+
+        if (!options || !options.fromPopState) {
+          if (options && options.replaceState) {
+            window.history.replaceState({ shell: true }, "", result.finalUrl.toString());
+          } else {
+            window.history.pushState({ shell: true }, "", result.finalUrl.toString());
+          }
+        }
+
+        scrollAfterNavigation(result.finalUrl, options && options.fromPopState);
+      });
+    }
+
+    function fallbackNavigation(url) {
+      window.location.href = url.toString();
+    }
+
+    function navigate(urlLike, options) {
+      var url = urlLike instanceof URL ? urlLike : new URL(urlLike, window.location.origin);
+
+      if (!isPublicShellPath(url)) {
+        fallbackNavigation(url);
+        return Promise.resolve(false);
+      }
+
+      return fetchAndSwap(url, options).then(function () {
+        return true;
+      }).catch(function () {
+        fallbackNavigation(url);
+        return false;
+      });
+    }
+
+    document.addEventListener("click", function (event) {
+      var toggle = event.target.closest("[data-nav-toggle]");
+      if (toggle) {
+        var menu = document.getElementById("site-nav-menu");
+        if (!menu) return;
+
+        var isHidden = menu.hasAttribute("hidden");
+        if (isHidden) {
+          menu.removeAttribute("hidden");
+          toggle.setAttribute("aria-expanded", "true");
+        } else {
+          menu.setAttribute("hidden", "");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+        return;
+      }
+
+      var playButton = event.target.closest("[data-audio-play]");
+      if (playButton) {
+        writeBool(STORAGE_KEYS.started, true);
+
+        if (audio.paused) {
+          writeBool(STORAGE_KEYS.playing, true);
+          audio.play().catch(function () {
+            syncAudioUi();
+          });
+        } else {
+          audio.pause();
+          writeBool(STORAGE_KEYS.playing, false);
+          syncAudioUi();
+        }
+        return;
+      }
+
+      var muteButton = event.target.closest("[data-audio-mute]");
+      if (muteButton) {
+        var fallbackVolume = clampVolume(readNumber(STORAGE_KEYS.previousVolume, 0.85)) || 0.85;
+
+        if (audio.muted || audio.volume === 0) {
+          audio.volume = fallbackVolume;
+          audio.muted = false;
+          localStorage.setItem(STORAGE_KEYS.volume, String(audio.volume));
+        } else {
+          localStorage.setItem(STORAGE_KEYS.previousVolume, String(audio.volume));
+          audio.muted = true;
+        }
+
+        writeBool(STORAGE_KEYS.started, true);
+        writeBool(STORAGE_KEYS.muted, audio.muted || audio.volume === 0);
+        syncAudioUi();
+        return;
+      }
+
+      var introEnter = event.target.closest("[data-intro-enter]");
+      if (introEnter) {
+        event.preventDefault();
+        startAudioFromGesture().then(function () {
+          navigate(introEnter.href);
+        });
+        return;
+      }
+
+      var link = event.target.closest("a[href]");
+      if (!link) return;
+      if (event.defaultPrevented) return;
+      if (event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (link.hasAttribute("download")) return;
+      if (link.getAttribute("target") && link.getAttribute("target") !== "_self") return;
+
+      var url = new URL(link.href, window.location.origin);
+      var sameDocumentHash =
+        url.origin === window.location.origin &&
+        url.pathname === window.location.pathname &&
+        url.search === window.location.search &&
+        url.hash;
+
+      if (sameDocumentHash) return;
+      if (!isPublicShellPath(url)) return;
+
+      event.preventDefault();
+      navigate(url);
+    });
+
+    document.addEventListener("input", function (event) {
+      var volumeSlider = event.target.closest("[data-audio-volume]");
+      var nextVolume;
+
+      if (!volumeSlider) return;
+
+      nextVolume = clampVolume(Number(volumeSlider.value));
+      audio.volume = nextVolume;
+      audio.muted = nextVolume === 0;
+
+      if (nextVolume > 0) {
+        localStorage.setItem(STORAGE_KEYS.previousVolume, String(nextVolume));
+      }
+
+      localStorage.setItem(STORAGE_KEYS.volume, String(nextVolume));
+      writeBool(STORAGE_KEYS.muted, audio.muted);
+      writeBool(STORAGE_KEYS.started, true);
+      syncAudioUi();
+    });
+
+    audio.addEventListener("play", function () {
+      writeBool(STORAGE_KEYS.started, true);
+      writeBool(STORAGE_KEYS.playing, true);
+      syncAudioUi();
+    });
+
+    audio.addEventListener("volumechange", function () {
+      if (audio.volume > 0) {
+        localStorage.setItem(STORAGE_KEYS.previousVolume, String(audio.volume));
+      }
+
+      localStorage.setItem(STORAGE_KEYS.volume, String(audio.volume));
+      writeBool(STORAGE_KEYS.muted, audio.muted || audio.volume === 0);
+      syncAudioUi();
+    });
+
+    window.addEventListener("popstate", function () {
+      var url = new URL(window.location.href);
+
+      if (!isPublicShellPath(url)) {
+        window.location.reload();
+        return;
+      }
+
+      fetchAndSwap(url, { fromPopState: true }).catch(function () {
+        window.location.reload();
+      });
+    });
+
+    window.AUHPublicShell = {
+      navigate: navigate,
+      startAudioFromGesture: startAudioFromGesture,
+      syncAudioUi: syncAudioUi
+    };
+
+    syncAudioUi();
+    applyStoredAudioState();
+    window.history.replaceState({ shell: true }, "", window.location.href);
+  })();
+</script>

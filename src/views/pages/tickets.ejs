@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <style id="site-page-styles">
+<%- include("../partials/public_page_styles") %>
+<%- include("../partials/immersive_hero_styles") %>
+
+    .tickets-page {
+      position: relative;
+      background: #050505;
+    }
+
+    .tickets-experience {
+      position: relative;
+      min-height: 100vh;
+    }
+
+    .tickets-experience__backdrop {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .tickets-experience__backdrop::after {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 38%, rgba(0, 0, 0, 0.36));
+      content: "";
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .tickets-experience__content {
+      position: relative;
+      z-index: 2;
+      width: min(1180px, calc(100% - 40px));
+      margin: -100vh auto 0;
+      padding: 136px 0 96px;
+    }
+
+    .tickets-intro {
+      width: min(760px, 100%);
+      margin-bottom: 40px;
+    }
+
+    .tickets-intro__title {
+      max-width: 9em;
+      margin: 0;
+      font-size: clamp(2.5rem, 8vw, 6.2rem);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .tickets-list {
+      display: grid;
+      gap: 24px;
+    }
+
+    .tickets-heading {
+      margin: 0 0 34px;
+      color: rgba(244, 241, 236, 0.72);
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.32em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .ticket-card {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: start;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.03);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+    }
+
+    .ticket-card__meta,
+    .ticket-card__title {
+      margin: 0;
+      text-transform: uppercase;
+    }
+
+    .ticket-card__meta {
+      color: rgba(244, 241, 236, 0.58);
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+    }
+
+    .ticket-card__title {
+      margin-top: 10px;
+      font-size: 1rem;
+      letter-spacing: 0.14em;
+      line-height: 1.45;
+    }
+
+    .ticket-card__description,
+    .ticket-card__detail,
+    .ticket-card__status {
+      margin: 12px 0 0;
+      color: rgba(244, 241, 236, 0.78);
+    }
+
+    .ticket-card__actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .ticket-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 18px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      color: #f4f1ec;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: background 180ms ease, color 180ms ease, opacity 180ms ease;
+      white-space: nowrap;
+    }
+
+    .ticket-button:hover,
+    .ticket-button:focus-visible {
+      background: #fff;
+      color: #050505;
+    }
+
+    .tickets-empty {
+      margin: 0;
+      color: rgba(244, 241, 236, 0.78);
+      text-align: center;
+    }
+
+    @media (max-width: 820px) {
+      .tickets-experience__content {
+        width: min(calc(100% - 28px), 1180px);
+        padding-top: 122px;
+      }
+
+      .ticket-card {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .tickets-experience__backdrop {
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 100vh;
+      }
+
+      .tickets-experience__content {
+        margin-top: 0;
+        padding-top: 108px;
+      }
+
+      .tickets-intro {
+        margin-bottom: 28px;
+      }
+
+      .tickets-intro__title {
+        max-width: 100%;
+        font-size: clamp(2.2rem, 14vw, 4rem);
+      }
+    }
+  </style>
+</head>
+<body class="public-page-template" data-shell-page="public">
+  <%- include("../partials/header") %>
+  <main id="site-shell-content" class="tickets-page">
+    <section class="tickets-experience" aria-labelledby="tickets-title">
+      <div class="tickets-experience__backdrop immersive-hero" aria-hidden="true">
+        <video class="immersive-hero__video" autoplay muted loop playsinline>
+          <source src="/videos/auhVHS5.mp4" type="video/mp4" />
+        </video>
+        <div class="immersive-hero__shade"></div>
+        <div class="immersive-hero__noise"></div>
+      </div>
+
+      <div class="tickets-experience__content">
+        <section class="tickets-intro">
+          <h1 id="tickets-title" class="tickets-intro__title">Tickets</h1>
+        </section>
+
+        <section id="page-content" aria-labelledby="tickets-heading">
+          <h2 id="tickets-heading" class="tickets-heading">Upcoming Dates</h2>
+
+          <% if (items.length === 0) { %>
+            <p class="tickets-empty">No shows are live right now.</p>
+          <% } else { %>
+            <div class="tickets-list">
+              <% items.forEach(i => { %>
+                <article class="ticket-card">
+                  <div>
+                    <p class="ticket-card__meta">Show</p>
+                    <h3 class="ticket-card__title"><%= i.name %></h3>
+                    <p class="ticket-card__description"><%= i.description || "" %></p>
+
+                    <% if (i.event_date) { %>
+                      <p class="ticket-card__detail"><strong>Date:</strong> <%= i.event_date %></p>
+                    <% } %>
+
+                    <% if (i.venue_name || i.venue_city || i.venue_state) { %>
+                      <p class="ticket-card__detail">
+                        <strong>Venue:</strong>
+                        <%= i.venue_name || "" %>
+                        <% if (i.venue_name && (i.venue_city || i.venue_state)) { %>, <% } %>
+                        <%= [i.venue_city, i.venue_state].filter(Boolean).join(", ") %>
+                      </p>
+                    <% } %>
+
+                    <% if (i.ticket_mode === "internal") { %>
+                      <% if (!i.is_on_sale) { %>
+                        <p class="ticket-card__status"><em>Not on sale yet</em></p>
+                      <% } else if (i.price_from_cents != null) { %>
+                        <p class="ticket-card__status">
+                          <% if (i.active_variant_count > 1) { %>
+                            From $<%= (i.price_from_cents / 100).toFixed(2) %>
+                          <% } else { %>
+                            $<%= (i.price_from_cents / 100).toFixed(2) %>
+                          <% } %>
+                        </p>
+                      <% } else { %>
+                        <p class="ticket-card__status"><em>Tickets not listed yet</em></p>
+                      <% } %>
+                    <% } else if (i.ticket_mode === "external") { %>
+                      <% if (!i.is_on_sale) { %>
+                        <p class="ticket-card__status"><em>Not on sale yet</em></p>
+                      <% } else { %>
+                        <p class="ticket-card__status"><em>External ticket link</em></p>
+                      <% } %>
+                    <% } else if (i.ticket_mode === "doors_only") { %>
+                      <p class="ticket-card__status"><em>Tickets at the door</em></p>
+                    <% } else if (i.ticket_mode === "free") { %>
+                      <p class="ticket-card__status"><em>Free show</em></p>
+                    <% } %>
+                  </div>
+
+                  <div class="ticket-card__actions">
+                    <% if (i.ticket_mode === "internal") { %>
+                      <a href="/product/<%= i.slug %>" class="ticket-button">View Tickets</a>
+                    <% } else if (i.ticket_mode === "external") { %>
+                      <% if (i.external_url) { %>
+                        <a href="<%= i.external_url %>" class="ticket-button">Buy Tickets</a>
+                      <% } else { %>
+                        <a href="/product/<%= i.slug %>" class="ticket-button">Show Details</a>
+                      <% } %>
+                    <% } else { %>
+                      <a href="/product/<%= i.slug %>" class="ticket-button">Show Details</a>
+                    <% } %>
+                  </div>
+                </article>
+              <% }) %>
+            </div>
+          <% } %>
+        </section>
+      </div>
+    </section>
+  </main>
+  <%- include("../partials/public_shell_bootstrap") %>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <style id="site-page-styles">
+<%- include("../partials/public_page_styles") %>
+<%- include("../partials/immersive_hero_styles") %>
+
+    .cart-page {
+      position: relative;
+      background: #050505;
+    }
+
+    .cart-experience {
+      position: relative;
+      min-height: 100vh;
+    }
+
+    .cart-experience__backdrop {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .cart-experience__backdrop::after {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 38%, rgba(0, 0, 0, 0.36));
+      content: "";
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .cart-experience__content {
+      position: relative;
+      z-index: 2;
+      width: min(1180px, calc(100% - 40px));
+      margin: -100vh auto 0;
+      padding: 136px 0 96px;
+    }
+
+    .cart-intro {
+      width: min(760px, 100%);
+      margin-bottom: 32px;
+    }
+
+    .cart-intro__title {
+      max-width: 9em;
+      margin: 0;
+      font-size: clamp(2.5rem, 8vw, 6.2rem);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .cart-panel {
+      width: min(760px, 100%);
+      padding: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.04);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+    }
+
+    .cart-heading {
+      margin: 0 0 24px;
+      color: rgba(244, 241, 236, 0.72);
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.32em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .cart-empty,
+    .cart-summary,
+    .cart-links,
+    .cart-line {
+      color: rgba(244, 241, 236, 0.82);
+    }
+
+    .cart-empty,
+    .cart-summary {
+      margin: 0 0 20px;
+    }
+
+    .cart-items {
+      list-style: none;
+      margin: 0 0 24px;
+      padding: 0;
+      display: grid;
+      gap: 16px;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .cart-item__title {
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .cart-line {
+      margin: 8px 0 0;
+    }
+
+    .cart-links {
+      margin: 0;
+    }
+
+    .cart-links a,
+    .cart-action,
+    .cart-remove button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 18px;
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      color: #f4f1ec;
+      background: transparent;
+      font: inherit;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-decoration: none;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 180ms ease, color 180ms ease, opacity 180ms ease;
+    }
+
+    .cart-links a:hover,
+    .cart-links a:focus-visible,
+    .cart-action:hover,
+    .cart-action:focus-visible,
+    .cart-remove button:hover,
+    .cart-remove button:focus-visible {
+      background: #fff;
+      color: #050505;
+    }
+
+    .cart-remove {
+      margin: 0;
+    }
+
+    .cart-link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 820px) {
+      .cart-experience__content {
+        width: min(calc(100% - 28px), 1180px);
+        padding-top: 122px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .cart-experience__backdrop {
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 100vh;
+      }
+
+      .cart-experience__content {
+        margin-top: 0;
+        padding-top: 108px;
+      }
+
+      .cart-intro {
+        margin-bottom: 24px;
+      }
+
+      .cart-intro__title {
+        max-width: 100%;
+        font-size: clamp(2.2rem, 14vw, 4rem);
+      }
+
+      .cart-panel {
+        padding: 24px 18px;
+      }
+
+      .cart-item {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="public-page-template" data-shell-page="public">
+  <%- include("../partials/header") %>
+  <main id="site-shell-content" class="cart-page">
+    <section class="cart-experience" aria-labelledby="cart-title">
+      <div class="cart-experience__backdrop immersive-hero" aria-hidden="true">
+        <video class="immersive-hero__video" autoplay muted loop playsinline>
+          <source src="/videos/auhVHScart.mp4" type="video/mp4" />
+        </video>
+        <div class="immersive-hero__shade"></div>
+        <div class="immersive-hero__noise"></div>
+      </div>
+
+      <div class="cart-experience__content">
+        <section class="cart-intro">
+          <h1 id="cart-title" class="cart-intro__title">Cart</h1>
+        </section>
+
+        <section id="page-content" aria-labelledby="cart-heading">
+          <div class="cart-panel">
+            <h2 id="cart-heading" class="cart-heading">Your Selection</h2>
+
+            <% if (cart.length === 0) { %>
+              <p class="cart-empty">Your cart is empty.</p>
+              <div class="cart-link-row">
+                <a href="/tickets">Browse Tickets</a>
+                <a href="/store">Browse Store</a>
+              </div>
+            <% } else { %>
+              <ul class="cart-items">
+                <% cart.forEach((item, idx) => { %>
+                  <li class="cart-item">
+                    <div>
+                      <h3 class="cart-item__title"><%= item.productName %></h3>
+                      <p class="cart-line">
+                        <%= item.variantName %> -
+                        $<%= (item.priceCents / 100).toFixed(2) %> x <%= item.qty %>
+                      </p>
+                    </div>
+
+                    <form action="/cart/remove" method="POST" class="cart-remove">
+                      <input type="hidden" name="index" value="<%= idx %>">
+                      <button type="submit">Remove</button>
+                    </form>
+                  </li>
+                <% }) %>
+              </ul>
+
+              <p class="cart-summary">Subtotal: $<%= (subtotalCents / 100).toFixed(2) %></p>
+
+              <div class="cart-link-row">
+                <a href="/checkout" class="cart-action">Checkout</a>
+                <a href="/tickets">Tickets</a>
+                <a href="/store">Store</a>
+              </div>
+            <% } %>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <%- include("../partials/public_shell_bootstrap") %>
+</body>
+</html>

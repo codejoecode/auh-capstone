@@ -1,0 +1,597 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= title %></title>
+</head>
+<body>
+  <%- include("../partials/header") %>
+  <h1><%= title %></h1>
+
+  <% const form = formData || {}; %>
+  <% const initialVariants = form.initial_variants || [{ name: "", priceCents: "", stockQty: "" }]; %>
+  <% const ticketInitialVariant = initialVariants[0] || { name: "GA", priceCents: "", stockQty: "" }; %>
+  <% const selectedType = form.type || "ticket"; %>
+  <% const selectedTicketMode = form.ticket_mode || "internal"; %>
+  <% const isTicket = selectedType === "ticket"; %>
+  <% const isMerch = selectedType === "merch"; %>
+  <% const isInternalTicket = isTicket && selectedTicketMode === "internal"; %>
+
+  <% if (error) { %>
+    <p><strong><%= error %></strong></p>
+  <% } %>
+
+  <form action="/admin/products/new" method="POST" enctype="multipart/form-data" id="productForm">
+    <p>
+      <label>Name</label><br/>
+      <input name="name" id="nameInput" value="<%= form.name || "" %>" required>
+    </p>
+
+    <p>
+      <label>Slug (unique, URL-safe)</label><br/>
+      <input
+        name="slug"
+        id="slugInput"
+        placeholder="auh-brooklyn-2026-03-20"
+        value="<%= form.slug || "" %>"
+        pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+        title="Use lowercase letters, numbers, and hyphens only."
+        autocapitalize="off"
+        autocomplete="off"
+        spellcheck="false"
+        required
+      >
+    </p>
+
+    <p>
+      <label>Type</label><br/>
+      <select name="type" id="typeSelect" required>
+        <option value="ticket" <%= selectedType === "ticket" ? "selected" : "" %>>ticket</option>
+        <option value="merch" <%= selectedType === "merch" ? "selected" : "" %>>merch</option>
+      </select>
+    </p>
+
+    <p>
+      <label>Description</label><br/>
+      <textarea name="description" rows="4"><%= form.description || "" %></textarea>
+    </p>
+
+    <div id="ticketFields" <%= isTicket ? "" : "hidden" %> style="display:<%= isTicket ? "block" : "none" %>;">
+      <hr/>
+      <p><strong>Ticket Details</strong></p>
+
+      <p>
+        <label>Event date</label><br/>
+        <input name="eventDate" id="eventDateInput" type="datetime-local" value="<%= form.event_date || "" %>">
+      </p>
+
+      <p>
+        <label>Venue name</label><br/>
+        <input name="venueName" id="venueNameInput" value="<%= form.venue_name || "" %>">
+      </p>
+
+      <p>
+        <label>Venue city</label><br/>
+        <input name="venueCity" id="venueCityInput" value="<%= form.venue_city || "" %>">
+      </p>
+
+      <p>
+        <label>Venue state</label><br/>
+        <input name="venueState" id="venueStateInput" value="<%= form.venue_state || "" %>">
+      </p>
+
+      <p>
+        <label>Ticket mode</label><br/>
+        <select name="ticketMode" id="ticketModeSelect">
+          <option value="internal" <%= selectedTicketMode === "internal" ? "selected" : "" %>>internal</option>
+          <option value="external" <%= selectedTicketMode === "external" ? "selected" : "" %>>external</option>
+          <option value="doors_only" <%= selectedTicketMode === "doors_only" ? "selected" : "" %>>doors_only</option>
+          <option value="free" <%= selectedTicketMode === "free" ? "selected" : "" %>>free</option>
+        </select>
+      </p>
+
+      <p id="externalUrlWrap">
+        <label id="externalUrlLabel">External URL</label><br/>
+        <input name="externalUrl" id="externalUrlInput" value="<%= form.external_url || "" %>">
+      </p>
+
+      <p>
+        <label>
+          <input name="isOnSale" type="checkbox" value="1" <%= form.is_on_sale ? "checked" : "" %>>
+          On sale
+        </label>
+      </p>
+
+      <div id="ticketInitialVariantSection" <%= isInternalTicket ? "" : "hidden" %> style="display:<%= isInternalTicket ? "block" : "none" %>;">
+        <input
+          type="hidden"
+          name="variantNames"
+          id="ticketVariantNameInput"
+          value="GA"
+        >
+
+        <p><strong>Internal Sale Settings</strong></p>
+
+        <p>
+          <label>Price (cents)</label><br/>
+          <input
+            name="variantPrices"
+            id="ticketVariantPriceInput"
+            type="number"
+            min="0"
+            placeholder="2500"
+            value="<%= ticketInitialVariant.priceCents || "" %>"
+          >
+        </p>
+
+        <p>
+          <label>Stock quantity</label><br/>
+          <input
+            name="variantStocks"
+            id="ticketVariantStockInput"
+            type="number"
+            min="0"
+            placeholder="100"
+            value="<%= ticketInitialVariant.stockQty || "" %>"
+          >
+        </p>
+      </div>
+    </div>
+
+    <div id="initialVariantsSection" <%= isMerch ? "" : "hidden" %> style="display:<%= isMerch ? "block" : "none" %>;">
+      <hr/>
+      <p><strong>Product Images</strong></p>
+
+      <p>
+        <label>Upload merch images</label><br/>
+        <input
+          type="file"
+          id="merchImagesInput"
+          name="images"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+        >
+      </p>
+
+      <p id="merchImagesHelp">
+        Select one or more images from your computer. You can assign variant-specific images after creation on the edit page.
+      </p>
+
+      <hr/>
+      <p><strong>Variants</strong></p>
+
+      <p>
+        <label>Variant Type</label><br/>
+        <label><input type="radio" name="variantBuilderType" class="variant-type-radio" value="apparel" checked> Apparel</label>
+        <label><input type="radio" name="variantBuilderType" class="variant-type-radio" value="format"> Format</label>
+      </p>
+
+      <div id="apparelVariantFields">
+        <p>
+          <label>Colors (comma-separated)</label><br/>
+          <input id="apparelColorsInput" placeholder="Black, Cream">
+        </p>
+
+        <p id="apparelSizesWrap">
+          <label>Sizes</label><br/>
+          <label><input type="checkbox" class="apparel-size" value="Small"> Small</label>
+          <label><input type="checkbox" class="apparel-size" value="Medium"> Medium</label>
+          <label><input type="checkbox" class="apparel-size" value="Large"> Large</label>
+          <label><input type="checkbox" class="apparel-size" value="XL"> XL</label>
+          <label><input type="checkbox" class="apparel-size" value="XXL"> XXL</label>
+          <label><input type="checkbox" class="apparel-size" value="XXXL"> XXXL</label>
+          <label><input type="checkbox" class="apparel-size" value="4XL"> 4XL</label>
+        </p>
+      </div>
+
+      <p id="formatOptionsWrap" hidden style="display:none;">
+        <label>Formats</label><br/>
+        <label><input type="checkbox" class="format-option" value="CD"> CD</label>
+        <label><input type="checkbox" class="format-option" value="Cassette"> Cassette</label>
+        <label><input type="checkbox" class="format-option" value='7" Vinyl'> 7" Vinyl</label>
+        <label><input type="checkbox" class="format-option" value='12" Vinyl'> 12" Vinyl</label>
+      </p>
+
+      <p id="apparelBasePriceWrap">
+        <label>Base price (cents)</label><br/>
+        <input id="apparelBasePriceInput" type="number" min="0" placeholder="2500">
+      </p>
+
+      <p id="apparelDefaultStockWrap">
+        <label>Stock per variant</label><br/>
+        <input id="apparelDefaultStockInput" type="number" min="0" placeholder="10">
+      </p>
+
+      <p>
+        <button type="button" id="generateVariantsButton">Create Variants</button>
+      </p>
+
+      <p><strong>Variant List</strong></p>
+      <p id="variantHelp"></p>
+
+      <table border="1" cellpadding="6" id="variantTable">
+        <tr>
+          <th>Name</th>
+          <th>Price (cents)</th>
+          <th>Stock</th>
+          <th>Actions</th>
+        </tr>
+        <tbody id="variantRows">
+          <% initialVariants.forEach((variant, index) => { %>
+            <tr class="variant-row" data-index="<%= index %>">
+              <td>
+                <input name="variantNames" value="<%= variant.name || "" %>">
+              </td>
+              <td>
+                <input name="variantPrices" type="number" min="0" placeholder="2500" value="<%= variant.priceCents || "" %>">
+              </td>
+              <td>
+                <input name="variantStocks" type="number" min="0" placeholder="25" value="<%= variant.stockQty || "" %>">
+              </td>
+              <td>
+                <button type="button" class="remove-variant">Remove</button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <p>
+        <button type="button" id="addVariantButton">Add Variant</button>
+      </p>
+    </div>
+
+    <button type="submit">Create</button>
+  </form>
+
+  <template id="variantRowTemplate">
+    <tr class="variant-row">
+      <td>
+        <input name="variantNames">
+      </td>
+      <td>
+        <input name="variantPrices" type="number" min="0" placeholder="2500">
+      </td>
+      <td>
+        <input name="variantStocks" type="number" min="0" placeholder="25">
+      </td>
+      <td>
+        <button type="button" class="remove-variant">Remove</button>
+      </td>
+    </tr>
+  </template>
+
+  <p><a href="/admin/products">Back</a></p>
+
+  <script>
+    const nameInput = document.getElementById("nameInput");
+    const slugInput = document.getElementById("slugInput");
+    const typeSelect = document.getElementById("typeSelect");
+    const ticketModeSelect = document.getElementById("ticketModeSelect");
+    const ticketFields = document.getElementById("ticketFields");
+    const externalUrlWrap = document.getElementById("externalUrlWrap");
+    const externalUrlLabel = document.getElementById("externalUrlLabel");
+    const eventDateInput = document.getElementById("eventDateInput");
+    const venueNameInput = document.getElementById("venueNameInput");
+    const venueCityInput = document.getElementById("venueCityInput");
+    const venueStateInput = document.getElementById("venueStateInput");
+    const externalUrlInput = document.getElementById("externalUrlInput");
+    const ticketInitialVariantSection = document.getElementById("ticketInitialVariantSection");
+    const ticketVariantNameInput = document.getElementById("ticketVariantNameInput");
+    const ticketVariantPriceInput = document.getElementById("ticketVariantPriceInput");
+    const ticketVariantStockInput = document.getElementById("ticketVariantStockInput");
+    const initialVariantsSection = document.getElementById("initialVariantsSection");
+    const merchImagesInput = document.getElementById("merchImagesInput");
+    const variantRows = document.getElementById("variantRows");
+    const addVariantButton = document.getElementById("addVariantButton");
+    const variantRowTemplate = document.getElementById("variantRowTemplate");
+    const variantHelp = document.getElementById("variantHelp");
+    const variantTypeInputs = Array.from(document.querySelectorAll(".variant-type-radio"));
+    const apparelVariantFields = document.getElementById("apparelVariantFields");
+    const apparelSizesWrap = document.getElementById("apparelSizesWrap");
+    const formatOptionsWrap = document.getElementById("formatOptionsWrap");
+    const apparelBasePriceWrap = document.getElementById("apparelBasePriceWrap");
+    const apparelDefaultStockWrap = document.getElementById("apparelDefaultStockWrap");
+    const apparelColorsInput = document.getElementById("apparelColorsInput");
+    const apparelSizeInputs = Array.from(document.querySelectorAll(".apparel-size"));
+    const formatOptionInputs = Array.from(document.querySelectorAll(".format-option"));
+    const apparelBasePriceInput = document.getElementById("apparelBasePriceInput");
+    const apparelDefaultStockInput = document.getElementById("apparelDefaultStockInput");
+    const generateVariantsButton = document.getElementById("generateVariantsButton");
+    let slugEditedManually = false;
+
+    function slugify(value) {
+      return String(value || "")
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .replace(/-{2,}/g, "-");
+    }
+
+    function syncSlugEditedState() {
+      const currentSlug = slugify(slugInput.value);
+      const generatedSlug = slugify(nameInput.value);
+      slugEditedManually = Boolean(currentSlug) && currentSlug !== generatedSlug;
+    }
+
+    function syncSlugFromName(force = false) {
+      const generatedSlug = slugify(nameInput.value);
+      const currentSlug = slugify(slugInput.value);
+
+      if (force || !slugEditedManually || !currentSlug) {
+        slugInput.value = generatedSlug;
+        slugEditedManually = false;
+      }
+    }
+
+    function getVariantInputs() {
+      return Array.from(variantRows.querySelectorAll(".variant-row"));
+    }
+
+    function ensureOneVariantRow() {
+      if (getVariantInputs().length === 0) {
+        const fragment = variantRowTemplate.content.cloneNode(true);
+        variantRows.appendChild(fragment);
+      }
+    }
+
+    function getVariantRowValues() {
+      return getVariantInputs().map((row) => {
+        const nameInput = row.querySelector('input[name="variantNames"]');
+        const priceInput = row.querySelector('input[name="variantPrices"]');
+        const stockInput = row.querySelector('input[name="variantStocks"]');
+
+        return {
+          row,
+          name: nameInput.value.trim(),
+          price: priceInput.value.trim(),
+          stock: stockInput.value.trim(),
+          nameInput,
+          priceInput,
+          stockInput,
+        };
+      });
+    }
+
+    function appendVariantRow(variantName, price, stock) {
+      const fragment = variantRowTemplate.content.cloneNode(true);
+      variantRows.appendChild(fragment);
+      const rows = getVariantInputs();
+      const row = rows[rows.length - 1];
+      row.querySelector('input[name="variantNames"]').value = variantName;
+      row.querySelector('input[name="variantPrices"]').value = price;
+      row.querySelector('input[name="variantStocks"]').value = stock;
+    }
+
+    function getSelectedVariantType() {
+      const selectedInput = variantTypeInputs.find((input) => input.checked);
+      return selectedInput ? selectedInput.value : "apparel";
+    }
+
+    function fillVariantRow(rowValue, variantName, price, stock) {
+      rowValue.nameInput.value = variantName;
+      rowValue.priceInput.value = price;
+      rowValue.stockInput.value = stock;
+    }
+
+    function generateVariants() {
+      const variantType = getSelectedVariantType();
+      let generatedVariantNames = [];
+      let generatedPrice = "";
+      let generatedStock = "";
+
+      if (variantType === "apparel") {
+        const basePrice = apparelBasePriceInput.value.trim();
+        const defaultStock = apparelDefaultStockInput.value.trim();
+        const colors = apparelColorsInput.value
+          .split(",")
+          .map((color) => color.trim())
+          .filter(Boolean);
+        const sizes = apparelSizeInputs
+          .filter((input) => input.checked)
+          .map((input) => input.value);
+
+        if (colors.length === 0 || sizes.length === 0) {
+          window.alert("Enter at least one color and choose at least one size.");
+          return;
+        }
+
+        if (!basePrice || !defaultStock) {
+          window.alert("Enter a base price and stock per variant.");
+          return;
+        }
+
+        generatedVariantNames = colors.flatMap((color) => {
+          return sizes.map((size) => `${color} / ${size}`);
+        });
+        generatedPrice = basePrice;
+        generatedStock = defaultStock;
+      } else {
+        generatedVariantNames = formatOptionInputs
+          .filter((input) => input.checked)
+          .map((input) => input.value);
+
+        if (generatedVariantNames.length === 0) {
+          window.alert("Choose at least one format.");
+          return;
+        }
+      }
+
+      const existingRows = getVariantRowValues();
+      const existingNames = new Set(existingRows.map((row) => row.name.toLowerCase()).filter(Boolean));
+      const blankRows = existingRows.filter((row) => !row.name && !row.price && !row.stock);
+
+      for (const variantName of generatedVariantNames) {
+        const normalizedName = variantName.toLowerCase();
+        if (existingNames.has(normalizedName)) {
+          continue;
+        }
+
+        const blankRow = blankRows.shift();
+        if (blankRow) {
+          fillVariantRow(blankRow, variantName, generatedPrice, generatedStock);
+        } else {
+          appendVariantRow(variantName, generatedPrice, generatedStock);
+        }
+
+        existingNames.add(normalizedName);
+      }
+
+      syncFormState();
+    }
+
+    function setSectionVisible(element, isVisible) {
+      element.hidden = !isVisible;
+      element.style.display = isVisible ? "block" : "none";
+    }
+
+    function syncFormState() {
+      const type = typeSelect.value;
+      const ticketMode = ticketModeSelect.value;
+      const isTicket = type === "ticket";
+      const isInternalTicket = isTicket && ticketMode === "internal";
+      const isExternal = isTicket && ticketMode === "external";
+      const isMerch = type === "merch";
+
+      setSectionVisible(ticketFields, isTicket);
+      setSectionVisible(ticketInitialVariantSection, isInternalTicket);
+      setSectionVisible(initialVariantsSection, isMerch);
+      setSectionVisible(externalUrlWrap, isExternal);
+
+      const variantType = getSelectedVariantType();
+      setSectionVisible(apparelVariantFields, isMerch && variantType === "apparel");
+      setSectionVisible(apparelSizesWrap, isMerch && variantType === "apparel");
+      setSectionVisible(apparelBasePriceWrap, isMerch && variantType === "apparel");
+      setSectionVisible(apparelDefaultStockWrap, isMerch && variantType === "apparel");
+      setSectionVisible(formatOptionsWrap, isMerch && variantType === "format");
+
+      externalUrlLabel.textContent = isExternal
+        ? "External URL"
+        : "External URL (only used for external mode)";
+
+      eventDateInput.required = isTicket;
+      venueNameInput.required = isTicket;
+      venueCityInput.required = isTicket;
+      venueStateInput.required = isTicket;
+      ticketModeSelect.required = isTicket;
+      externalUrlInput.required = isExternal;
+
+      ticketVariantNameInput.value = "GA";
+      ticketVariantNameInput.required = false;
+      ticketVariantPriceInput.required = isInternalTicket;
+      ticketVariantStockInput.required = isInternalTicket;
+      ticketVariantNameInput.disabled = !isInternalTicket;
+      ticketVariantPriceInput.disabled = !isInternalTicket;
+      ticketVariantStockInput.disabled = !isInternalTicket;
+      if (merchImagesInput) {
+        merchImagesInput.disabled = !isMerch;
+      }
+
+      if (isMerch) {
+        ensureOneVariantRow();
+      }
+
+      getVariantInputs().forEach((row) => {
+        const nameInput = row.querySelector('input[name="variantNames"]');
+        const priceInput = row.querySelector('input[name="variantPrices"]');
+        const stockInput = row.querySelector('input[name="variantStocks"]');
+
+        nameInput.required = isMerch;
+        priceInput.required = isMerch;
+        stockInput.required = isMerch;
+        nameInput.disabled = !isMerch;
+        priceInput.disabled = !isMerch;
+        stockInput.disabled = !isMerch;
+      });
+
+      if (variantHelp) {
+        variantHelp.textContent = isMerch
+          ? "These rows are the variants that will be saved. You can edit them or add more manually."
+          : "";
+      }
+    }
+
+    function initializeFormState() {
+      slugInput.value = slugify(slugInput.value);
+      syncSlugEditedState();
+
+      if (typeSelect.value !== "ticket" && typeSelect.value !== "merch") {
+        typeSelect.value = "<%= selectedType %>";
+      }
+
+      if (!["internal", "external", "doors_only", "free"].includes(ticketModeSelect.value)) {
+        ticketModeSelect.value = "<%= selectedTicketMode %>";
+      }
+
+      syncFormState();
+    }
+
+    addVariantButton.addEventListener("click", () => {
+      const fragment = variantRowTemplate.content.cloneNode(true);
+      variantRows.appendChild(fragment);
+      syncFormState();
+    });
+
+    variantRows.addEventListener("click", (event) => {
+      if (!event.target.classList.contains("remove-variant")) return;
+
+      const rows = getVariantInputs();
+      if (rows.length === 1) {
+        rows[0].querySelectorAll("input").forEach((input) => {
+          input.value = "";
+        });
+      } else {
+        event.target.closest(".variant-row").remove();
+      }
+
+      syncFormState();
+    });
+
+    nameInput.addEventListener("input", () => {
+      syncSlugFromName();
+    });
+
+    slugInput.addEventListener("input", () => {
+      const normalizedSlug = slugify(slugInput.value);
+      if (slugInput.value !== normalizedSlug) {
+        slugInput.value = normalizedSlug;
+      }
+
+      if (!slugInput.value) {
+        slugEditedManually = false;
+        return;
+      }
+
+      syncSlugEditedState();
+    });
+
+    slugInput.addEventListener("blur", () => {
+      if (!slugInput.value.trim()) {
+        syncSlugFromName(true);
+      }
+    });
+
+    document.getElementById("productForm").addEventListener("submit", () => {
+      if (!slugInput.value.trim()) {
+        syncSlugFromName(true);
+      } else {
+        slugInput.value = slugify(slugInput.value);
+      }
+    });
+
+    typeSelect.addEventListener("change", syncFormState);
+    ticketModeSelect.addEventListener("change", syncFormState);
+    variantTypeInputs.forEach((input) => {
+      input.addEventListener("change", syncFormState);
+    });
+    generateVariantsButton.addEventListener("click", generateVariants);
+    initializeFormState();
+    window.addEventListener("load", syncFormState);
+    window.addEventListener("pageshow", syncFormState);
+    window.setTimeout(syncFormState, 0);
+  </script>
+</body>
+</html>

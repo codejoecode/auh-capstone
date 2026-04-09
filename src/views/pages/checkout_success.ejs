@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <style id="site-page-styles">
+<%- include("../partials/public_page_styles") %>
+  </style>
+</head>
+<body class="public-page-template standard-shell-page" data-shell-page="public">
+  <%- include("../partials/header") %>
+  <main id="site-shell-content">
+    <h1><%= title %></h1>
+
+    <p>Your mock order has been placed successfully.</p>
+
+    <p><strong>Order Number:</strong> <%= order.order_number %></p>
+    <p><strong>Name:</strong> <%= order.customer_name %></p>
+    <p><strong>Email:</strong> <%= order.customer_email %></p>
+
+    <h2>Order Summary</h2>
+    <ul>
+      <% items.forEach(item => { %>
+        <li>
+          <strong><%= item.product_name_snapshot %></strong>
+          (<%= item.variant_name_snapshot %>) -
+          $<%= (item.unit_price_cents / 100).toFixed(2) %> x <%= item.quantity %>
+          = $<%= (item.line_total_cents / 100).toFixed(2) %>
+        </li>
+      <% }) %>
+    </ul>
+
+    <h3>Subtotal: $<%= (order.subtotal_cents / 100).toFixed(2) %></h3>
+
+    <p><a href="/store">Continue Shopping</a></p>
+    <p><a href="/tickets">Browse Tickets</a></p>
+    <p><a href="/home">Home</a></p>
+  </main>
+  <%- include("../partials/public_shell_bootstrap") %>
+</body>
+</html>

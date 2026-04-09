@@ -1,0 +1,258 @@
+<%
+  const primaryNavLinks = [
+    { href: "/home", label: "Home" },
+    { href: "/music", label: "Music" },
+    { href: "/store", label: "Store" },
+    { href: "/tickets", label: "Tickets" },
+    { href: "/newsletter", label: "Newsletter" },
+  ];
+%>
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap");
+
+  html {
+    min-height: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    background-image: url("/images/animatedBackground.gif");
+    background-position: top left;
+    background-repeat: repeat;
+    background-size: auto;
+  }
+
+  .site-shell-header[hidden] {
+    display: none;
+  }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #fff;
+    border-bottom: 1px solid #ccc;
+    padding: 12px 16px;
+    margin-bottom: 24px;
+  }
+
+  .site-header__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .site-header__left,
+  .site-header__center,
+  .site-header__right {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .site-header__left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .site-header__center {
+    text-align: center;
+  }
+
+  .site-header__right {
+    text-align: right;
+  }
+
+  .site-header__cart-link,
+  .site-header__home-link,
+  .site-audio__button {
+    color: inherit;
+    text-decoration: none;
+    font: inherit;
+  }
+
+  .site-header__brand {
+    font-family: "Cormorant Garamond", "Times New Roman", serif;
+    font-size: clamp(2.1rem, 4.8vw, 4.6rem);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    line-height: 0.95;
+    text-transform: uppercase;
+    color: #000;
+    white-space: nowrap;
+  }
+
+  .site-header__cart-count {
+    font-size: 0.9rem;
+  }
+
+  .site-audio {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .site-audio__button {
+    display: inline-flex;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.42);
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    opacity: 0.72;
+    transition: opacity 180ms ease, background 180ms ease, color 180ms ease;
+  }
+
+  .site-audio__button:hover,
+  .site-audio__button:focus-visible {
+    opacity: 1;
+  }
+
+  .site-audio__button[aria-pressed="true"] {
+    opacity: 1;
+  }
+
+  .site-audio__button-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+    pointer-events: none;
+  }
+
+  .site-audio__slider {
+    width: 92px;
+    height: 2px;
+    margin: 0;
+    accent-color: currentColor;
+    cursor: pointer;
+    opacity: 0.72;
+  }
+
+  .site-audio__slider:hover,
+  .site-audio__slider:focus-visible {
+    opacity: 1;
+  }
+
+  .site-header__desktop-nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    align-items: center;
+    margin-top: 2px;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .site-header__desktop-nav a {
+    opacity: 0.76;
+    text-decoration: none;
+    transition: opacity 180ms ease, color 180ms ease;
+    white-space: nowrap;
+  }
+
+  .site-header__desktop-nav a:hover,
+  .site-header__desktop-nav a:focus-visible {
+    opacity: 1;
+  }
+
+  @media (max-width: 640px) {
+    .site-audio__button {
+      width: 28px;
+      height: 28px;
+      font-size: 0.82rem;
+    }
+
+    .site-audio__slider {
+      width: 68px;
+    }
+
+    .site-header__desktop-nav {
+      flex-wrap: wrap;
+      gap: 14px 18px;
+      padding: 0 18px;
+      font-size: 0.64rem;
+      letter-spacing: 0.16em;
+    }
+  }
+</style>
+
+<% if (usePublicShell) { %>
+  <% /* Public pages expose a stable shell header node so JS can swap page content without tearing down audio. */ %>
+  <div id="public-shell-header" class="site-shell-header" <% if (!showShellHeader) { %>hidden aria-hidden="true"<% } %>>
+<% } %>
+<header class="site-header">
+  <div class="site-header__bar">
+    <div class="site-header__left">
+      <% if (showAudioPlayer) { %>
+        <div class="site-audio" data-site-audio-ui>
+          <button
+            type="button"
+            class="site-audio__button"
+            data-audio-play
+            aria-label="Play background audio"
+            aria-pressed="false"
+          >
+            <span class="site-audio__button-icon" aria-hidden="true">&#9654;</span>
+          </button>
+
+          <button
+            type="button"
+            class="site-audio__button"
+            data-audio-mute
+            aria-label="Mute background audio"
+            aria-pressed="false"
+          >
+            <span class="site-audio__button-icon" aria-hidden="true">&#128266;</span>
+          </button>
+
+          <input
+            type="range"
+            class="site-audio__slider"
+            data-audio-volume
+            aria-label="Background audio volume"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0.85"
+          />
+        </div>
+      <% } %>
+    </div>
+
+    <div class="site-header__center">
+      <a href="/home" class="site-header__home-link site-header__brand">All Under Heaven</a>
+    </div>
+
+    <div class="site-header__right">
+      <a href="/cart" class="site-header__cart-link">
+        &#128722;
+        <% if (cartCount > 0) { %>
+          <span class="site-header__cart-count">(<%= cartCount %>)</span>
+        <% } %>
+      </a>
+    </div>
+  </div>
+
+</header>
+<% if (showShellHeader) { %>
+  <nav class="site-header__desktop-nav" aria-label="Primary navigation">
+    <% primaryNavLinks.forEach((link) => { %>
+      <a href="<%= link.href %>"><%= link.label %></a>
+    <% }) %>
+  </nav>
+<% } %>
+<% if (usePublicShell) { %>
+  </div>
+<% } %>
