@@ -1,125 +1,156 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title><%= title %></title></head>
+<head><meta charset="utf-8"><title><%= title %></title><%- include("../partials/admin_shell_styles") %></head>
 <body>
   <%- include("../partials/header") %>
-  <h1><%= title %></h1>
+  <main class="admin-page">
+    <section class="page-intro">
+      <h1><%= title %></h1>
+      <p>Update product details, ticket settings, images, and variants from one place.</p>
+    </section>
 
-  <% if (error) { %>
-    <p><strong><%= error %></strong></p>
-  <% } %>
+    <section class="admin-card">
+      <% if (error) { %>
+        <p class="error-banner"><strong><%= error %></strong></p>
+      <% } %>
 
-  <form action="/admin/products/<%= product.id %>/edit" method="POST" id="editProductForm">
-    <p>
-      <label>Name</label><br/>
-      <input name="name" value="<%= product.name %>" required>
-    </p>
+      <form action="/admin/products/<%= product.id %>/edit" method="POST" id="editProductForm" class="split-stack">
+        <div>
+          <div class="section-title">
+            <h2>Product Basics</h2>
+            <p>Edit the public-facing details and internal product settings here.</p>
+          </div>
 
-    <p>
-      <label>Slug (unique, URL-safe)</label><br/>
-      <input
-        name="slug"
-        value="<%= product.slug %>"
-        pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-        title="Use lowercase letters, numbers, and hyphens only."
-        autocapitalize="off"
-        autocomplete="off"
-        spellcheck="false"
-        required
-      >
-    </p>
+          <div class="form-grid">
+            <div class="field-block">
+              <label for="nameInput">Name</label>
+              <input name="name" id="nameInput" value="<%= product.name %>" required>
+              <span class="muted-text" id="nameHelp"><%= product.type === "ticket" ? "Auto-generated from ticket city and state." : "Used as the product title on the storefront." %></span>
+            </div>
 
-    <p>
-      <label>Type</label><br/>
-      <select name="type" id="typeSelect" required>
-        <option value="ticket" <%= product.type === "ticket" ? "selected" : "" %>>ticket</option>
-        <option value="merch" <%= product.type === "merch" ? "selected" : "" %>>merch</option>
-      </select>
-    </p>
+            <div class="field-block">
+              <label for="slugInput">Slug</label>
+              <input
+                name="slug"
+                id="slugInput"
+                value="<%= product.slug %>"
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                title="Use lowercase letters, numbers, and hyphens only."
+                autocapitalize="off"
+                autocomplete="off"
+                spellcheck="false"
+                required
+              >
+            </div>
 
-    <p>
-      <label>Description</label><br/>
-      <textarea name="description" rows="4"><%= product.description || "" %></textarea>
-    </p>
+            <div class="field-block">
+              <label for="typeSelect">Type</label>
+              <select name="type" id="typeSelect" required>
+                <option value="ticket" <%= product.type === "ticket" ? "selected" : "" %>>ticket</option>
+                <option value="merch" <%= product.type === "merch" ? "selected" : "" %>>merch</option>
+              </select>
+            </div>
 
-    <p>
-      <label>Image URL (legacy fallback)</label><br/>
-      <input name="imageUrl" value="<%= product.image_url || "" %>">
-    </p>
+            <div class="field-block">
+              <label for="imageUrlInput">Image URL (legacy fallback)</label>
+              <input name="imageUrl" id="imageUrlInput" value="<%= product.image_url || "" %>">
+            </div>
 
-    <div id="ticketFields">
-      <hr/>
-      <p><strong>Ticket Details</strong></p>
+            <div class="field-block full">
+              <label for="descriptionInput">Description</label>
+              <textarea name="description" id="descriptionInput" rows="4"><%= product.description || "" %></textarea>
+            </div>
+          </div>
+        </div>
 
-      <p>
-        <label>Event date</label><br/>
-        <input name="eventDate" id="eventDateInput" type="datetime-local" value="<%= product.event_date || "" %>">
-      </p>
+        <div id="ticketFields" class="subsection">
+          <div class="section-title">
+            <h2>Ticket Details</h2>
+            <p>These fields only apply when the product type is a ticket.</p>
+          </div>
 
-      <p>
-        <label>Venue name</label><br/>
-        <input name="venueName" id="venueNameInput" value="<%= product.venue_name || "" %>">
-      </p>
+          <div class="form-grid">
+            <div class="field-block">
+              <label for="eventDateInput">Event date</label>
+              <input name="eventDate" id="eventDateInput" type="datetime-local" value="<%= product.event_date || "" %>">
+            </div>
 
-      <p>
-        <label>Venue city</label><br/>
-        <input name="venueCity" id="venueCityInput" value="<%= product.venue_city || "" %>">
-      </p>
+            <div class="field-block">
+              <label for="venueNameInput">Venue name</label>
+              <input name="venueName" id="venueNameInput" value="<%= product.venue_name || "" %>">
+            </div>
 
-      <p>
-        <label>Venue state</label><br/>
-        <input name="venueState" id="venueStateInput" value="<%= product.venue_state || "" %>">
-      </p>
+            <div class="field-block">
+              <label for="venueCityInput">Venue city</label>
+              <input name="venueCity" id="venueCityInput" value="<%= product.venue_city || "" %>">
+            </div>
 
-      <p>
-        <label>Ticket mode</label><br/>
-        <select name="ticketMode" id="ticketModeSelect">
-          <option value="internal" <%= product.ticket_mode === "internal" ? "selected" : "" %>>internal</option>
-          <option value="external" <%= product.ticket_mode === "external" ? "selected" : "" %>>external</option>
-          <option value="doors_only" <%= product.ticket_mode === "doors_only" ? "selected" : "" %>>doors_only</option>
-          <option value="free" <%= product.ticket_mode === "free" ? "selected" : "" %>>free</option>
-        </select>
-      </p>
+            <div class="field-block">
+              <label for="venueStateInput">Venue state</label>
+              <input name="venueState" id="venueStateInput" value="<%= product.venue_state || "" %>">
+            </div>
 
-      <p id="externalUrlWrap">
-        <label id="externalUrlLabel">External URL</label><br/>
-        <input name="externalUrl" id="externalUrlInput" value="<%= product.external_url || "" %>">
-      </p>
+            <div class="field-block">
+              <label for="ticketModeSelect">Ticket mode</label>
+              <select name="ticketMode" id="ticketModeSelect">
+                <option value="internal" <%= product.ticket_mode === "internal" ? "selected" : "" %>>internal</option>
+                <option value="external" <%= product.ticket_mode === "external" ? "selected" : "" %>>external</option>
+                <option value="doors_only" <%= product.ticket_mode === "doors_only" ? "selected" : "" %>>doors_only</option>
+                <option value="free" <%= product.ticket_mode === "free" ? "selected" : "" %>>free</option>
+              </select>
+            </div>
 
-      <p>
-        <label>
-          <input name="isOnSale" type="checkbox" value="1" <%= product.is_on_sale ? "checked" : "" %>>
-          On sale
-        </label>
-      </p>
+            <div class="field-block" id="externalUrlWrap">
+              <label for="externalUrlInput" id="externalUrlLabel">External URL</label>
+              <input name="externalUrl" id="externalUrlInput" value="<%= product.external_url || "" %>">
+            </div>
 
-      <p id="ticketModeHelp"></p>
-    </div>
+            <div class="field-block full inline">
+              <label>
+                <input name="isOnSale" type="checkbox" value="1" <%= product.is_on_sale ? "checked" : "" %>>
+                On sale
+              </label>
+            </div>
 
-    <button type="submit">Save Changes</button>
-  </form>
+            <div class="field-block full">
+              <p class="muted-text" id="ticketModeHelp"></p>
+            </div>
+          </div>
+        </div>
 
-  <% if (product.type === "merch") { %>
-    <hr/>
+        <div class="admin-actions">
+          <button type="submit">Save Changes</button>
+          <a href="/admin/products" class="admin-link-button secondary">Back</a>
+        </div>
+      </form>
+    </section>
 
-    <h2>Merch Images</h2>
+    <% if (product.type === "merch") { %>
+      <section class="admin-card">
+        <div class="section-title">
+          <h2>Merch Images</h2>
+          <p>Upload gallery images and assign them to variants when needed.</p>
+        </div>
 
-    <% if (imageError) { %>
-      <p><strong><%= imageError %></strong></p>
-    <% } %>
+        <% if (imageError) { %>
+          <p class="error-banner"><strong><%= imageError %></strong></p>
+        <% } %>
 
-    <form action="/admin/products/<%= product.id %>/images/upload" method="POST" enctype="multipart/form-data">
-      <p>
-        <label>Upload images</label><br/>
-        <input type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple required>
-      </p>
-      <button type="submit">Upload Images</button>
-    </form>
+        <form action="/admin/products/<%= product.id %>/images/upload" method="POST" enctype="multipart/form-data" class="form-grid single-column">
+          <div class="field-block full">
+            <label for="imagesUploadInput">Upload images</label>
+            <input id="imagesUploadInput" type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple required>
+          </div>
+          <div class="admin-actions">
+            <button type="submit">Upload Images</button>
+          </div>
+        </form>
 
-    <% if (productImages.length === 0) { %>
-      <p>No uploaded merch images yet. The legacy product image URL will still work as a fallback.</p>
-    <% } else { %>
-      <table border="1" cellpadding="6">
+        <% if (productImages.length === 0) { %>
+          <p class="empty-state">No uploaded merch images yet. The legacy product image URL will still work as a fallback.</p>
+        <% } else { %>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
         <tr>
           <th>Preview</th>
           <th>Stored path</th>
@@ -128,38 +159,38 @@
         </tr>
         <% productImages.forEach((image) => { %>
           <tr>
-            <td style="vertical-align:top;">
+            <td>
               <img src="<%= image.image_path %>" alt="<%= image.alt_text || product.name %>" style="width:120px;height:120px;object-fit:cover;">
             </td>
-            <td style="vertical-align:top;max-width:260px;word-break:break-all;"><%= image.image_path %></td>
-            <td style="vertical-align:top;">
-              <form action="/admin/products/<%= product.id %>/images/<%= image.id %>/update" method="POST">
-                <p>
-                  <label>Alt text</label><br/>
+            <td style="max-width:260px;word-break:break-all;"><%= image.image_path %></td>
+            <td>
+              <form action="/admin/products/<%= product.id %>/images/<%= image.id %>/update" method="POST" class="form-grid single-column">
+                <div class="field-block full">
+                  <label>Alt text</label>
                   <input name="altText" value="<%= image.alt_text || "" %>">
-                </p>
+                </div>
 
-                <p>
-                  <label>Sort order</label><br/>
+                <div class="field-block full">
+                  <label>Sort order</label>
                   <input name="sortOrder" type="number" value="<%= image.sort_order %>">
-                </p>
+                </div>
 
-                <p>
+                <div class="field-block full inline">
                   <label>
                     <input name="isActive" type="checkbox" value="1" <%= image.is_active ? "checked" : "" %>>
                     Active
                   </label>
-                </p>
+                </div>
 
-                <p>
+                <div class="field-block full inline">
                   <label>
                     <input name="isPrimary" type="checkbox" value="1" <%= image.is_primary ? "checked" : "" %>>
                     Primary image
                   </label>
-                </p>
+                </div>
 
-                <p>
-                  <label>Variant image for</label><br/>
+                <div class="field-block full">
+                  <label>Variant image for</label>
                   <select name="variantId">
                     <option value="">Product gallery image</option>
                     <% variants.forEach((variant) => { %>
@@ -168,30 +199,37 @@
                       </option>
                     <% }) %>
                   </select>
-                </p>
+                </div>
 
-                <button type="submit">Save Image Settings</button>
+                <div class="admin-actions">
+                  <button type="submit">Save Image Settings</button>
+                </div>
               </form>
             </td>
-            <td style="vertical-align:top;">
+            <td>
               <form action="/admin/products/<%= product.id %>/images/<%= image.id %>/delete" method="POST">
-                <button type="submit">Delete</button>
+                <button type="submit" class="secondary">Delete</button>
               </form>
             </td>
           </tr>
         <% }) %>
-      </table>
+            </table>
+          </div>
+        <% } %>
+      </section>
     <% } %>
-  <% } %>
 
-  <hr/>
+    <section class="admin-card">
+      <div class="section-title">
+        <h2>Variants</h2>
+        <p>Adjust existing variants or add a new one below.</p>
+      </div>
 
-  <h2>Variants</h2>
-
-  <% if (variants.length === 0) { %>
-    <p>No variants yet.</p>
-  <% } else { %>
-    <table border="1" cellpadding="6">
+      <% if (variants.length === 0) { %>
+        <p class="empty-state">No variants yet.</p>
+      <% } else { %>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
       <tr>
         <th>Name</th>
         <th>Price (cents)</th>
@@ -213,45 +251,58 @@
           </td>
           <td><%= variant.is_active ? "Active" : "Inactive" %></td>
           <td>
-              <button type="submit">Save</button>
+              <div class="table-actions">
+                <button type="submit">Save</button>
             </form>
-            <form action="/admin/products/<%= product.id %>/variants/<%= variant.id %>/toggle" method="POST" style="display:inline;">
-              <button type="submit"><%= variant.is_active ? "Deactivate" : "Activate" %></button>
-            </form>
+                <form action="/admin/products/<%= product.id %>/variants/<%= variant.id %>/toggle" method="POST">
+                  <button type="submit" class="secondary"><%= variant.is_active ? "Deactivate" : "Activate" %></button>
+                </form>
+              </div>
           </td>
         </tr>
       <% }) %>
-    </table>
-  <% } %>
+          </table>
+        </div>
+      <% } %>
 
-  <h3>Add Variant</h3>
+      <div class="subsection">
+        <h3>Add Variant</h3>
 
-  <% if (variantError) { %>
-    <p><strong><%= variantError %></strong></p>
-  <% } %>
+        <% if (variantError) { %>
+          <p class="error-banner"><strong><%= variantError %></strong></p>
+        <% } %>
 
-  <form action="/admin/products/<%= product.id %>/variants/new" method="POST">
-    <p>
-      <label>Variant Name</label><br/>
-      <input name="name" required>
-    </p>
+        <form action="/admin/products/<%= product.id %>/variants/new" method="POST" class="form-grid">
+          <div class="field-block">
+            <label>Variant Name</label>
+            <input name="name" required>
+          </div>
 
-    <p>
-      <label>Price (cents)</label><br/>
-      <input name="priceCents" type="number" min="1" placeholder="2500" required>
-    </p>
+          <div class="field-block">
+            <label>Price (cents)</label>
+            <input name="priceCents" type="number" min="1" placeholder="2500" required>
+          </div>
 
-    <p>
-      <label>Stock quantity</label><br/>
-      <input name="stockQty" type="number" min="0" placeholder="25" required>
-    </p>
+          <div class="field-block">
+            <label>Stock quantity</label>
+            <input name="stockQty" type="number" min="0" placeholder="25" required>
+          </div>
 
-    <button type="submit">Add Variant</button>
-  </form>
-
-  <p><a href="/admin/products">Back</a></p>
+          <div class="field-block full">
+            <div class="admin-actions">
+              <button type="submit">Add Variant</button>
+              <a href="/admin/products" class="admin-link-button secondary">Back</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
 
   <script>
+    const nameInput = document.getElementById("nameInput");
+    const nameHelp = document.getElementById("nameHelp");
+    const slugInput = document.getElementById("slugInput");
     const typeSelect = document.getElementById("typeSelect");
     const ticketModeSelect = document.getElementById("ticketModeSelect");
     const ticketFields = document.getElementById("ticketFields");
@@ -263,6 +314,63 @@
     const venueCityInput = document.getElementById("venueCityInput");
     const venueStateInput = document.getElementById("venueStateInput");
     const externalUrlInput = document.getElementById("externalUrlInput");
+    let slugEditedManually = false;
+
+    function slugify(value) {
+      return String(value || "")
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .replace(/-{2,}/g, "-");
+    }
+
+    function formatTicketName() {
+      return [venueCityInput.value.trim(), venueStateInput.value.trim()].filter(Boolean).join(", ");
+    }
+
+    function formatTicketSlugSource() {
+      const eventDate = eventDateInput.value.trim().slice(0, 10);
+      return ["auh", venueCityInput.value.trim(), eventDate].filter(Boolean).join("-");
+    }
+
+    function syncSlugEditedState() {
+      const currentSlug = slugify(slugInput.value);
+      const generatedSlug = typeSelect.value === "ticket"
+        ? slugify(formatTicketSlugSource() || formatTicketName())
+        : slugify(nameInput.value);
+      slugEditedManually = Boolean(currentSlug) && currentSlug !== generatedSlug;
+    }
+
+    function syncSlugFromName(force = false) {
+      const generatedSlug = typeSelect.value === "ticket"
+        ? slugify(formatTicketSlugSource() || formatTicketName())
+        : slugify(nameInput.value);
+      const currentSlug = slugify(slugInput.value);
+
+      if (force || !slugEditedManually || !currentSlug) {
+        slugInput.value = generatedSlug;
+        slugEditedManually = false;
+      }
+    }
+
+    function syncTicketIdentity(forceSlug = false) {
+      const isTicket = typeSelect.value === "ticket";
+
+      nameInput.readOnly = isTicket;
+      nameHelp.textContent = isTicket
+        ? "Auto-generated from ticket city and state."
+        : "Used as the product title on the storefront.";
+
+      if (!isTicket) {
+        return;
+      }
+
+      nameInput.value = formatTicketName();
+      syncSlugFromName(forceSlug);
+    }
 
     function syncTicketFields() {
       const isTicket = typeSelect.value === "ticket";
@@ -286,10 +394,65 @@
       } else {
         ticketModeHelp.textContent = "Non-internal ticket modes do not require variants, but existing variants are preserved.";
       }
+
+      syncTicketIdentity();
     }
 
-    typeSelect.addEventListener("change", syncTicketFields);
+    nameInput.addEventListener("input", () => {
+      syncSlugFromName();
+    });
+
+    slugInput.addEventListener("input", () => {
+      const normalizedSlug = slugify(slugInput.value);
+      if (slugInput.value !== normalizedSlug) {
+        slugInput.value = normalizedSlug;
+      }
+
+      if (!slugInput.value) {
+        slugEditedManually = false;
+        return;
+      }
+
+      syncSlugEditedState();
+    });
+
+    slugInput.addEventListener("blur", () => {
+      if (!slugInput.value.trim()) {
+        syncSlugFromName(true);
+      }
+    });
+
+    eventDateInput.addEventListener("input", () => {
+      syncTicketIdentity();
+    });
+
+    venueCityInput.addEventListener("input", () => {
+      syncTicketIdentity();
+    });
+
+    venueStateInput.addEventListener("input", () => {
+      syncTicketIdentity();
+    });
+
+    typeSelect.addEventListener("change", () => {
+      if (typeSelect.value === "ticket") {
+        slugEditedManually = false;
+      }
+
+      syncTicketFields();
+    });
     ticketModeSelect.addEventListener("change", syncTicketFields);
+    document.getElementById("editProductForm").addEventListener("submit", () => {
+      if (!slugInput.value.trim()) {
+        syncSlugFromName(true);
+      } else {
+        slugInput.value = slugify(slugInput.value);
+      }
+    });
+
+    slugInput.value = slugify(slugInput.value);
+    syncSlugEditedState();
+    syncTicketIdentity(true);
     syncTicketFields();
   </script>
 </body>

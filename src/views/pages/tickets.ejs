@@ -205,22 +205,14 @@
           <% } else { %>
             <div class="tickets-list">
               <% items.forEach(i => { %>
+                <% const ticketTitle = [i.venue_city, i.venue_state].filter(Boolean).join(", ") || i.name; %>
                 <article class="ticket-card">
                   <div>
-                    <p class="ticket-card__meta">Show</p>
-                    <h3 class="ticket-card__title"><%= i.name %></h3>
-                    <p class="ticket-card__description"><%= i.description || "" %></p>
+                    <h3 class="ticket-card__title"><%= ticketTitle %></h3>
 
-                    <% if (i.event_date) { %>
-                      <p class="ticket-card__detail"><strong>Date:</strong> <%= i.event_date %></p>
-                    <% } %>
-
-                    <% if (i.venue_name || i.venue_city || i.venue_state) { %>
+                    <% if (i.venue_name) { %>
                       <p class="ticket-card__detail">
-                        <strong>Venue:</strong>
-                        <%= i.venue_name || "" %>
-                        <% if (i.venue_name && (i.venue_city || i.venue_state)) { %>, <% } %>
-                        <%= [i.venue_city, i.venue_state].filter(Boolean).join(", ") %>
+                        <%= i.venue_name %>
                       </p>
                     <% } %>
 

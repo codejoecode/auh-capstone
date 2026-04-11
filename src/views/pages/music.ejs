@@ -8,14 +8,18 @@
 <%- include("../partials/public_page_styles") %>
 
     .music-page {
+      --music-trigger-height: 26px;
+      --discography-art-size: clamp(230px, 18vw, 340px);
       background: #050505;
+      height: 100vh;
+      overflow: hidden;
     }
 
     .music-hero {
       position: relative;
       min-height: 100vh;
       height: 100vh;
-      padding: 128px 20px 92px;
+      padding: 128px 20px 24px;
       overflow: hidden;
       isolation: isolate;
       background: #000;
@@ -66,18 +70,20 @@
     }
 
     .music-hero__anchor {
-      position: absolute;
-      left: 50%;
-      bottom: 28px;
-      z-index: 2;
+      position: relative;
+      z-index: 3;
       color: rgba(255, 255, 255, 0.72);
+      min-height: var(--music-trigger-height);
+      padding: 0;
+      border: 0;
+      background: transparent;
+      font: inherit;
       font-size: 0.68rem;
       letter-spacing: 0.28em;
-      text-decoration: none;
       text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
       text-transform: uppercase;
-      transform: translateX(-50%);
       transition: opacity 180ms ease, color 180ms ease;
+      cursor: pointer;
     }
 
     .music-hero__anchor:hover,
@@ -96,6 +102,7 @@
       width: min(1120px, 100%);
       min-height: calc(min(820px, 88vh) - 214px);
       margin: 0 auto;
+      transition: opacity 260ms ease, transform 320ms ease, filter 260ms ease;
     }
 
     .featured-release__art {
@@ -142,28 +149,39 @@
     }
 
     .discography-section {
-      padding: 84px 20px 96px;
-      background: #050505;
+      position: absolute;
+      left: 50%;
+      bottom: 22px;
+      z-index: 3;
+      width: min(1440px, calc(100% - 24px));
+      max-height: var(--music-trigger-height);
+      overflow: hidden;
+      transform: translateX(-50%);
+      transition: max-height 320ms ease, bottom 320ms ease, transform 320ms ease, width 320ms ease;
+      background: transparent;
     }
 
     .discography-section__inner {
-      width: min(1120px, 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      width: min(1320px, 100%);
       margin: 0 auto;
+      justify-content: center;
     }
 
     .section-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 24px;
-      align-items: end;
-      margin-bottom: 34px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+      display: contents;
     }
 
     .section-header h2 {
-      font-size: clamp(1rem, 2vw, 1.8rem);
+      margin: 0;
+      font-size: 0.68rem;
       font-weight: 400;
+      color: rgba(255, 255, 255, 0.72);
+      letter-spacing: 0.28em;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
     }
 
     .button {
@@ -197,8 +215,10 @@
     .album-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: clamp(18px, 3vw, 42px);
+      gap: clamp(24px, 3vw, 48px);
       align-items: start;
+      width: 100%;
+      justify-content: center;
     }
 
     .album-card {
@@ -211,7 +231,7 @@
 
     .album-card img {
       width: 100%;
-      aspect-ratio: 1 / 1;
+      height: var(--discography-art-size);
       object-fit: cover;
       border: 1px solid rgba(255, 255, 255, 0.18);
     }
@@ -225,15 +245,28 @@
 
     .album-info h3 {
       min-height: 3.1em;
-      font-size: 0.9rem;
-      line-height: 1.55;
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    .music-page--discography-open .discography-section {
+      bottom: 50%;
+      max-height: 78vh;
+      transform: translate(-50%, 26%);
+    }
+
+    .music-page--discography-open .featured-release {
+      opacity: 0;
+      transform: translateY(-48px);
+      filter: blur(8px);
+      pointer-events: none;
     }
 
     @media (max-width: 820px) {
       .music-hero {
         min-height: 100vh;
-        height: auto;
-        padding: 104px 18px 86px;
+        height: 100vh;
+        padding: 104px 18px 20px;
       }
 
       .featured-release {
@@ -248,12 +281,14 @@
         text-align: center;
       }
 
-      .section-header {
-        display: block;
+      .discography-section {
+        width: min(700px, calc(100% - 28px));
+        bottom: 20px;
       }
 
-      .section-header h2 {
-        margin-bottom: 10px;
+      .music-page--discography-open .discography-section {
+        bottom: 50%;
+        transform: translate(-50%, 22%);
       }
 
       .album-grid {
@@ -267,7 +302,13 @@
       }
 
       .discography-section {
-        padding-top: 64px;
+        bottom: 18px;
+        width: min(420px, calc(100% - 24px));
+      }
+
+      .music-page--discography-open .discography-section {
+        bottom: 50%;
+        transform: translate(-50%, 16%);
       }
 
       .album-grid {
@@ -311,95 +352,98 @@
           </a>
         </div>
       </article>
+      <section id="discography" class="discography-section">
+        <div class="discography-section__inner">
+          <header class="section-header">
+            <button
+              type="button"
+              class="music-hero__anchor"
+              id="discographyToggle"
+              aria-expanded="false"
+              onclick="window.AUHPublicShell && window.AUHPublicShell.toggleMusicDiscography && window.AUHPublicShell.toggleMusicDiscography()"
+            >Discography</button>
+            <p>Archive</p>
+          </header>
 
-      <a href="#discography" class="music-hero__anchor">DISCOGRAPHY</a>
-    </section>
+          <div class="album-grid">
+            <article class="album-card">
+              <img
+                src="/images/AllUnderHeaven-WhatLiesAheadOfMe-Cover_2000x.jpg"
+                alt="What Lies Ahead of Me Cover"
+              />
 
-    <section id="discography" class="discography-section">
-      <div class="discography-section__inner">
-        <header class="section-header">
-          <h2>Discography</h2>
-          <p>Archive</p>
-        </header>
+              <div class="album-info">
+                <h3>What Lies Ahead of Me</h3>
+                <a
+                  href="https://dthw.sh/whatliesaheadofme"
+                  class="button button-small"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Listen Now
+                </a>
+              </div>
+            </article>
 
-        <div class="album-grid">
-          <article class="album-card">
-            <img
-              src="/images/AllUnderHeaven-WhatLiesAheadOfMe-Cover_2000x.jpg"
-              alt="What Lies Ahead of Me Cover"
-            />
+            <article class="album-card">
+              <img
+                src="/images/auh-lt-glareCover.jpg"
+                alt="AUH / Leaving Time / Glare Cover"
+              />
 
-            <div class="album-info">
-              <h3>What Lies Ahead of Me</h3>
-              <a
-                href="https://dthw.sh/whatliesaheadofme"
-                class="button button-small"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Listen Now
-              </a>
-            </div>
-          </article>
+              <div class="album-info">
+                <h3>Split</h3>
+                <a
+                  href="https://open.spotify.com/album/3G7HgD4vxg04rSF1WXYTFM?si=Ne2mcetvQZCGIugmD986KA"
+                  class="button button-small"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Listen Now
+                </a>
+              </div>
+            </article>
 
-          <article class="album-card">
-            <img
-              src="/images/auh-lt-glareCover.jpg"
-              alt="AUH / Leaving Time / Glare Cover"
-            />
+            <article class="album-card">
+              <img
+                src="/images/dsa2acCover.jpg"
+                alt="Don't Suffer Alone / Alley Cat Cover"
+              />
 
-            <div class="album-info">
-              <h3>Split</h3>
-              <a
-                href="https://open.spotify.com/album/3G7HgD4vxg04rSF1WXYTFM?si=Ne2mcetvQZCGIugmD986KA"
-                class="button button-small"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Listen Now
-              </a>
-            </div>
-          </article>
+              <div class="album-info">
+                <h3>Don't Suffer Alone / Alley Cat</h3>
+                <a
+                  href="https://linktr.ee/allunderheaven"
+                  class="button button-small"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Listen Now
+                </a>
+              </div>
+            </article>
 
-          <article class="album-card">
-            <img
-              src="/images/dsa2acCover.jpg"
-              alt="Don't Suffer Alone / Alley Cat Cover"
-            />
+            <article class="album-card">
+              <img
+                src="/images/colliderCover.jpg"
+                alt="Collider Cover"
+              />
 
-            <div class="album-info">
-              <h3>Don't Suffer Alone / Alley Cat</h3>
-              <a
-                href="https://linktr.ee/allunderheaven"
-                class="button button-small"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Listen Now
-              </a>
-            </div>
-          </article>
-
-          <article class="album-card">
-            <img
-              src="/images/colliderCover.jpg"
-              alt="Collider Cover"
-            />
-
-            <div class="album-info">
-              <h3>Collider</h3>
-              <a
-                href="https://linktr.ee/allunderheaven"
-                class="button button-small"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Listen Now
-              </a>
-            </div>
-          </article>
+              <div class="album-info">
+                <h3>Collider</h3>
+                <a
+                  href="https://linktr.ee/allunderheaven"
+                  class="button button-small"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Listen Now
+                </a>
+              </div>
+            </article>
+          </div>
         </div>
-      </div>
+      </section>
     </section>
   </main>
   <%- include("../partials/public_shell_bootstrap") %>

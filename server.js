@@ -104,6 +104,13 @@ function normalizeProductSlug(value = "") {
     .replace(/-{2,}/g, "-");
 }
 
+function deriveTicketName(data = {}) {
+  return [data.venue_city, data.venue_state]
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .join(", ");
+}
+
 function removeUploadedFiles(files = []) {
   for (const file of files) {
     if (!file?.path) continue;
@@ -125,7 +132,7 @@ function normalizeAdminProductData(data = {}) {
       }))
     : [];
 
-  return {
+  const normalizedData = {
     id: data.id,
     name: data.name || "",
     slug: data.slug || "",
@@ -143,6 +150,12 @@ function normalizeAdminProductData(data = {}) {
       ? initialVariants
       : [{ name: "", priceCents: "", stockQty: "" }],
   };
+
+  if (normalizedData.type === "ticket") {
+    normalizedData.name = deriveTicketName(normalizedData);
+  }
+
+  return normalizedData;
 }
 
 async function loadAdminProduct(productId) {
@@ -217,6 +230,15 @@ function buildMerchImageViewModel(product, productImages = []) {
   const activeImages = productImages.filter((image) => Number(image.is_active) === 1);
   const productLevelImages = activeImages.filter((image) => !image.variant_id);
   const variantImages = activeImages.filter((image) => image.variant_id);
+  const dedupedImages = [];
+  const seenImagePaths = new Set();
+
+  for (const image of activeImages) {
+    if (!image.image_path || seenImagePaths.has(image.image_path)) continue;
+    seenImagePaths.add(image.image_path);
+    dedupedImages.push(image);
+  }
+
   const defaultImage =
     productLevelImages[0] ||
     activeImages[0] ||
@@ -233,7 +255,7 @@ function buildMerchImageViewModel(product, productImages = []) {
       : null);
 
   return {
-    images: activeImages,
+    images: dedupedImages,
     productLevelImages,
     variantImages,
     defaultImage,
@@ -257,7 +279,7 @@ async function loadStoreMerchItems() {
   }
 
   const imageRows = await all(
-    `SELECT pi.id, pi.product_id, pi.image_path, pi.is_primary, pi.sort_order, pi.is_active
+    `SELECT pi.id, pi.product_id, pi.image_path, pi.alt_text, pi.is_primary, pi.sort_order, pi.is_active
      FROM product_images pi
      JOIN products p ON p.id = pi.product_id
      WHERE p.type = 'merch' AND p.is_active = 1 AND pi.is_active = 1
@@ -267,13 +289,31 @@ async function loadStoreMerchItems() {
   const imageMap = new Map();
   for (const row of imageRows) {
     if (!imageMap.has(row.product_id)) {
-      imageMap.set(row.product_id, row.image_path);
+      imageMap.set(row.product_id, []);
+    }
+
+    const productImages = imageMap.get(row.product_id);
+    if (!productImages.find((image) => image.image_path === row.image_path)) {
+      productImages.push({
+        image_path: row.image_path,
+        alt_text: row.alt_text || "",
+      });
     }
   }
 
   return merch.map((item) => ({
     ...item,
-    display_image_url: imageMap.get(item.id) || item.image_url || "",
+    display_image_url: imageMap.get(item.id)?.[0]?.image_path || item.image_url || "",
+    stacked_images:
+      imageMap.get(item.id)?.slice(0, 3) ||
+      (item.image_url
+        ? [
+            {
+              image_path: item.image_url,
+              alt_text: item.name,
+            },
+          ]
+        : []),
   }));
 }
 
@@ -471,7 +511,7 @@ app.get("/tickets", async (req, res) => {
          ) va
            ON va.product_id = p.id
          WHERE p.type = 'ticket' AND p.is_active = 1
-         ORDER BY p.id DESC`
+         ORDER BY td.event_date IS NULL ASC, td.event_date ASC, p.id ASC`
       )
     : await all(
         `SELECT p.id, p.slug, p.name, p.description,
@@ -495,7 +535,7 @@ app.get("/tickets", async (req, res) => {
          ) va
            ON va.product_id = p.id
          WHERE p.type = 'ticket' AND p.is_active = 1
-         ORDER BY p.id DESC`
+         ORDER BY p.id ASC`
       );
 
   res.render("pages/tickets", { title: "Tickets", items: tickets });

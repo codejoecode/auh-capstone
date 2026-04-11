@@ -1,31 +1,63 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title><%= title %></title></head>
+<head><meta charset="utf-8"><title><%= title %></title><%- include("../partials/admin_shell_styles") %></head>
 <body>
   <%- include("../partials/header") %>
-  <h1><%= title %></h1>
+  <main class="admin-page narrow">
+    <section class="page-intro">
+      <h1><%= title %></h1>
+      <p>Order summary, customer info, and item breakdown in one place.</p>
+    </section>
 
-  <p><strong>Order Number:</strong> <%= order.order_number %></p>
-  <p><strong>Name:</strong> <%= order.customer_name %></p>
-  <p><strong>Email:</strong> <%= order.customer_email %></p>
-  <p><strong>Status:</strong> <%= order.status %></p>
-  <p><strong>Created At:</strong> <%= order.created_at %></p>
+    <section class="admin-card">
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span>Order Number</span>
+          <strong><%= order.order_number %></strong>
+        </div>
+        <div class="detail-item">
+          <span>Name</span>
+          <strong><%= order.customer_name %></strong>
+        </div>
+        <div class="detail-item">
+          <span>Email</span>
+          <strong><%= order.customer_email %></strong>
+        </div>
+        <div class="detail-item">
+          <span>Status</span>
+          <strong><%= order.status %></strong>
+        </div>
+        <div class="detail-item">
+          <span>Created At</span>
+          <strong><%= order.created_at %></strong>
+        </div>
+        <div class="detail-item">
+          <span>Subtotal</span>
+          <strong>$<%= (order.subtotal_cents / 100).toFixed(2) %></strong>
+        </div>
+      </div>
+    </section>
 
-  <h2>Items</h2>
+    <section class="admin-card">
+      <div class="section-title">
+        <h2>Items</h2>
+      </div>
 
-  <ul>
-    <% items.forEach(item => { %>
-      <li>
-        <strong><%= item.product_name_snapshot %></strong>
-        (<%= item.variant_name_snapshot %>)
-        - $<%= (item.unit_price_cents / 100).toFixed(2) %> x <%= item.quantity %>
-        = $<%= (item.line_total_cents / 100).toFixed(2) %>
-      </li>
-    <% }) %>
-  </ul>
+      <ul class="stack-list">
+        <% items.forEach(item => { %>
+          <li>
+            <strong><%= item.product_name_snapshot %></strong>
+            (<%= item.variant_name_snapshot %>)
+            - $<%= (item.unit_price_cents / 100).toFixed(2) %> x <%= item.quantity %>
+            = $<%= (item.line_total_cents / 100).toFixed(2) %>
+          </li>
+        <% }) %>
+      </ul>
 
-  <h3>Subtotal: $<%= (order.subtotal_cents / 100).toFixed(2) %></h3>
-
-  <p><a href="/admin/orders">Back to Orders</a></p>
+      <div class="admin-actions">
+        <a href="/admin/orders" class="admin-link-button secondary">Back to Orders</a>
+      </div>
+    </section>
+  </main>
 </body>
 </html>

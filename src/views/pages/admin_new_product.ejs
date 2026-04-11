@@ -3,11 +3,282 @@
 <head>
   <meta charset="utf-8">
   <title><%= title %></title>
+  <style>
+    :root {
+      --page-bg: #f4f1eb;
+      --card-bg: rgba(255, 252, 247, 0.96);
+      --card-border: #d8d0c4;
+      --text-main: #181512;
+      --text-soft: #645b51;
+      --accent: #171717;
+      --accent-soft: #f0ebe2;
+      --danger-bg: #fff1ee;
+      --danger-border: #e8b0a3;
+      --field-bg: #fffdf9;
+      --shadow: 0 24px 60px rgba(24, 21, 18, 0.08);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text-main);
+      background:
+        radial-gradient(circle at top, rgba(255, 255, 255, 0.85), transparent 45%),
+        linear-gradient(180deg, #fbf8f2 0%, var(--page-bg) 100%);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .admin-product-page {
+      width: min(100%, 920px);
+      margin: 0 auto;
+      padding: 40px 20px 72px;
+    }
+
+    .page-intro {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .page-intro h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.2rem, 4vw, 3.4rem);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .page-intro p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 1rem;
+    }
+
+    .form-shell {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      backdrop-filter: blur(8px);
+    }
+
+    .error-banner {
+      margin: 0 0 24px;
+      padding: 14px 16px;
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      border-radius: var(--radius-sm);
+    }
+
+    .section-block + .section-block {
+      margin-top: 28px;
+      padding-top: 28px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    .section-heading {
+      margin: 0 0 18px;
+    }
+
+    .section-heading h2 {
+      margin: 0 0 6px;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--text-soft);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .field-grid.single-column {
+      grid-template-columns: 1fr;
+    }
+
+    .field,
+    .field-full {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-full {
+      grid-column: 1 / -1;
+    }
+
+    label,
+    .field-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .help-text,
+    #variantHelp {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #cfc5b8;
+      border-radius: var(--radius-sm);
+      background: var(--field-bg);
+      color: var(--text-main);
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #8f816f;
+      box-shadow: 0 0 0 4px rgba(143, 129, 111, 0.16);
+    }
+
+    .generated-name {
+      min-height: 52px;
+      padding: 14px 16px;
+      border: 1px solid #d8d0c4;
+      border-radius: var(--radius-sm);
+      background: linear-gradient(180deg, #fffdf8 0%, #f5efe5 100%);
+      font-size: 1rem;
+    }
+
+    .toggle-field label,
+    .option-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      margin-right: 16px;
+    }
+
+    .toggle-field input,
+    .option-row input {
+      width: auto;
+      margin: 0;
+    }
+
+    .inline-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2a2a2a;
+    }
+
+    .secondary-button,
+    .back-link {
+      background: var(--accent-soft);
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 12px 22px;
+    }
+
+    .variant-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      background: #fffdfa;
+    }
+
+    #variantTable {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    #variantTable th,
+    #variantTable td {
+      padding: 12px;
+      border-bottom: 1px solid #e6ddd1;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    #variantTable tr:last-child td {
+      border-bottom: none;
+    }
+
+    #variantTable input {
+      min-width: 140px;
+    }
+
+    @media (max-width: 720px) {
+      .admin-product-page {
+        padding: 24px 14px 56px;
+      }
+
+      .form-shell {
+        padding: 22px 18px;
+      }
+
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-intro h1 {
+        letter-spacing: 0.02em;
+      }
+    }
+  </style>
 </head>
 <body>
   <%- include("../partials/header") %>
-  <h1><%= title %></h1>
-
   <% const form = formData || {}; %>
   <% const initialVariants = form.initial_variants || [{ name: "", priceCents: "", stockQty: "" }]; %>
   <% const ticketInitialVariant = initialVariants[0] || { name: "GA", priceCents: "", stockQty: "" }; %>
@@ -17,232 +288,279 @@
   <% const isMerch = selectedType === "merch"; %>
   <% const isInternalTicket = isTicket && selectedTicketMode === "internal"; %>
 
-  <% if (error) { %>
-    <p><strong><%= error %></strong></p>
-  <% } %>
+  <main class="admin-product-page">
+    <section class="page-intro">
+      <h1><%= title %></h1>
+      <p>Clean up the basics here, then fill in ticket or merch details below.</p>
+    </section>
 
-  <form action="/admin/products/new" method="POST" enctype="multipart/form-data" id="productForm">
-    <p>
-      <label>Name</label><br/>
-      <input name="name" id="nameInput" value="<%= form.name || "" %>" required>
-    </p>
+    <section class="form-shell">
+      <% if (error) { %>
+        <p class="error-banner"><strong><%= error %></strong></p>
+      <% } %>
 
-    <p>
-      <label>Slug (unique, URL-safe)</label><br/>
-      <input
-        name="slug"
-        id="slugInput"
-        placeholder="auh-brooklyn-2026-03-20"
-        value="<%= form.slug || "" %>"
-        pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-        title="Use lowercase letters, numbers, and hyphens only."
-        autocapitalize="off"
-        autocomplete="off"
-        spellcheck="false"
-        required
-      >
-    </p>
+      <form action="/admin/products/new" method="POST" enctype="multipart/form-data" id="productForm">
+        <div class="section-block">
+          <div class="section-heading">
+            <h2>Product Basics</h2>
+            <p>Core info for the listing and URL.</p>
+          </div>
 
-    <p>
-      <label>Type</label><br/>
-      <select name="type" id="typeSelect" required>
-        <option value="ticket" <%= selectedType === "ticket" ? "selected" : "" %>>ticket</option>
-        <option value="merch" <%= selectedType === "merch" ? "selected" : "" %>>merch</option>
-      </select>
-    </p>
+          <div class="field-grid">
+            <div class="field" id="nameField" data-display="flex" <%= isTicket ? "hidden" : "" %> style="display:<%= isTicket ? "none" : "flex" %>;">
+              <label for="nameInput">Name</label>
+              <input name="name" id="nameInput" value="<%= form.name || "" %>" <%= isMerch ? "required" : "" %>>
+              <p class="help-text" id="nameHelp">Used as the product title on the storefront.</p>
+            </div>
 
-    <p>
-      <label>Description</label><br/>
-      <textarea name="description" rows="4"><%= form.description || "" %></textarea>
-    </p>
+            <div class="field-full" id="ticketNamePreviewWrap" data-display="flex" <%= isTicket ? "" : "hidden" %> style="display:<%= isTicket ? "flex" : "none" %>;">
+              <span class="field-label">Ticket name</span>
+              <div class="generated-name" id="ticketNamePreview"><%= form.name || "" %></div>
+              <p class="help-text">This is generated automatically from the venue city and state.</p>
+            </div>
 
-    <div id="ticketFields" <%= isTicket ? "" : "hidden" %> style="display:<%= isTicket ? "block" : "none" %>;">
-      <hr/>
-      <p><strong>Ticket Details</strong></p>
+            <div class="field">
+              <label for="slugInput">Slug</label>
+              <input
+                name="slug"
+                id="slugInput"
+                placeholder="auh-brooklyn-2026-03-20"
+                value="<%= form.slug || "" %>"
+                pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
+                title="Use lowercase letters, numbers, and hyphens only."
+                autocapitalize="off"
+                autocomplete="off"
+                spellcheck="false"
+                required
+              >
+              <p class="help-text">URL-safe identifier for the product page.</p>
+            </div>
 
-      <p>
-        <label>Event date</label><br/>
-        <input name="eventDate" id="eventDateInput" type="datetime-local" value="<%= form.event_date || "" %>">
-      </p>
+            <div class="field">
+              <label for="typeSelect">Type</label>
+              <select name="type" id="typeSelect" required>
+                <option value="ticket" <%= selectedType === "ticket" ? "selected" : "" %>>ticket</option>
+                <option value="merch" <%= selectedType === "merch" ? "selected" : "" %>>merch</option>
+              </select>
+            </div>
 
-      <p>
-        <label>Venue name</label><br/>
-        <input name="venueName" id="venueNameInput" value="<%= form.venue_name || "" %>">
-      </p>
+            <div class="field-full">
+              <label for="descriptionInput">Description</label>
+              <textarea name="description" id="descriptionInput" rows="4"><%= form.description || "" %></textarea>
+            </div>
+          </div>
+        </div>
 
-      <p>
-        <label>Venue city</label><br/>
-        <input name="venueCity" id="venueCityInput" value="<%= form.venue_city || "" %>">
-      </p>
+        <div class="section-block" id="ticketFields" <%= isTicket ? "" : "hidden" %> style="display:<%= isTicket ? "block" : "none" %>;">
+          <div class="section-heading">
+            <h2>Ticket Details</h2>
+            <p>Location and sales settings drive the generated ticket details.</p>
+          </div>
 
-      <p>
-        <label>Venue state</label><br/>
-        <input name="venueState" id="venueStateInput" value="<%= form.venue_state || "" %>">
-      </p>
+          <div class="field-grid">
+            <div class="field">
+              <label for="eventDateInput">Event date</label>
+              <input name="eventDate" id="eventDateInput" type="datetime-local" value="<%= form.event_date || "" %>">
+            </div>
 
-      <p>
-        <label>Ticket mode</label><br/>
-        <select name="ticketMode" id="ticketModeSelect">
-          <option value="internal" <%= selectedTicketMode === "internal" ? "selected" : "" %>>internal</option>
-          <option value="external" <%= selectedTicketMode === "external" ? "selected" : "" %>>external</option>
-          <option value="doors_only" <%= selectedTicketMode === "doors_only" ? "selected" : "" %>>doors_only</option>
-          <option value="free" <%= selectedTicketMode === "free" ? "selected" : "" %>>free</option>
-        </select>
-      </p>
+            <div class="field">
+              <label for="venueNameInput">Venue name</label>
+              <input name="venueName" id="venueNameInput" value="<%= form.venue_name || "" %>">
+            </div>
 
-      <p id="externalUrlWrap">
-        <label id="externalUrlLabel">External URL</label><br/>
-        <input name="externalUrl" id="externalUrlInput" value="<%= form.external_url || "" %>">
-      </p>
+            <div class="field">
+              <label for="venueCityInput">Venue city</label>
+              <input name="venueCity" id="venueCityInput" value="<%= form.venue_city || "" %>">
+            </div>
 
-      <p>
-        <label>
-          <input name="isOnSale" type="checkbox" value="1" <%= form.is_on_sale ? "checked" : "" %>>
-          On sale
-        </label>
-      </p>
+            <div class="field">
+              <label for="venueStateInput">Venue state</label>
+              <input name="venueState" id="venueStateInput" value="<%= form.venue_state || "" %>">
+            </div>
 
-      <div id="ticketInitialVariantSection" <%= isInternalTicket ? "" : "hidden" %> style="display:<%= isInternalTicket ? "block" : "none" %>;">
-        <input
-          type="hidden"
-          name="variantNames"
-          id="ticketVariantNameInput"
-          value="GA"
-        >
+            <div class="field">
+              <label for="ticketModeSelect">Ticket mode</label>
+              <select name="ticketMode" id="ticketModeSelect">
+                <option value="internal" <%= selectedTicketMode === "internal" ? "selected" : "" %>>internal</option>
+                <option value="external" <%= selectedTicketMode === "external" ? "selected" : "" %>>external</option>
+                <option value="doors_only" <%= selectedTicketMode === "doors_only" ? "selected" : "" %>>doors_only</option>
+                <option value="free" <%= selectedTicketMode === "free" ? "selected" : "" %>>free</option>
+              </select>
+            </div>
 
-        <p><strong>Internal Sale Settings</strong></p>
+            <div class="field" id="externalUrlWrap">
+              <label for="externalUrlInput" id="externalUrlLabel">External URL</label>
+              <input name="externalUrl" id="externalUrlInput" value="<%= form.external_url || "" %>">
+            </div>
 
-        <p>
-          <label>Price (cents)</label><br/>
-          <input
-            name="variantPrices"
-            id="ticketVariantPriceInput"
-            type="number"
-            min="0"
-            placeholder="2500"
-            value="<%= ticketInitialVariant.priceCents || "" %>"
-          >
-        </p>
+            <div class="field-full toggle-field">
+              <label>
+                <input name="isOnSale" type="checkbox" value="1" <%= form.is_on_sale ? "checked" : "" %>>
+                On sale
+              </label>
+            </div>
+          </div>
 
-        <p>
-          <label>Stock quantity</label><br/>
-          <input
-            name="variantStocks"
-            id="ticketVariantStockInput"
-            type="number"
-            min="0"
-            placeholder="100"
-            value="<%= ticketInitialVariant.stockQty || "" %>"
-          >
-        </p>
-      </div>
-    </div>
+          <div class="section-block" id="ticketInitialVariantSection" <%= isInternalTicket ? "" : "hidden" %> style="display:<%= isInternalTicket ? "block" : "none" %>;">
+            <input
+              type="hidden"
+              name="variantNames"
+              id="ticketVariantNameInput"
+              value="GA"
+            >
 
-    <div id="initialVariantsSection" <%= isMerch ? "" : "hidden" %> style="display:<%= isMerch ? "block" : "none" %>;">
-      <hr/>
-      <p><strong>Product Images</strong></p>
+            <div class="section-heading">
+              <h2>Internal Sale Settings</h2>
+              <p>Only needed when tickets are sold directly on the site.</p>
+            </div>
 
-      <p>
-        <label>Upload merch images</label><br/>
-        <input
-          type="file"
-          id="merchImagesInput"
-          name="images"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-        >
-      </p>
+            <div class="field-grid">
+              <div class="field">
+                <label for="ticketVariantPriceInput">Price (cents)</label>
+                <input
+                  name="variantPrices"
+                  id="ticketVariantPriceInput"
+                  type="number"
+                  min="0"
+                  placeholder="2500"
+                  value="<%= ticketInitialVariant.priceCents || "" %>"
+                >
+              </div>
 
-      <p id="merchImagesHelp">
-        Select one or more images from your computer. You can assign variant-specific images after creation on the edit page.
-      </p>
+              <div class="field">
+                <label for="ticketVariantStockInput">Stock quantity</label>
+                <input
+                  name="variantStocks"
+                  id="ticketVariantStockInput"
+                  type="number"
+                  min="0"
+                  placeholder="100"
+                  value="<%= ticketInitialVariant.stockQty || "" %>"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <hr/>
-      <p><strong>Variants</strong></p>
+        <div id="initialVariantsSection" class="section-block" <%= isMerch ? "" : "hidden" %> style="display:<%= isMerch ? "block" : "none" %>;">
+          <div class="section-heading">
+            <h2>Merch Setup</h2>
+            <p>Upload images and build the starting variant list.</p>
+          </div>
 
-      <p>
-        <label>Variant Type</label><br/>
-        <label><input type="radio" name="variantBuilderType" class="variant-type-radio" value="apparel" checked> Apparel</label>
-        <label><input type="radio" name="variantBuilderType" class="variant-type-radio" value="format"> Format</label>
-      </p>
+          <div class="field-grid">
+            <div class="field-full">
+              <label for="merchImagesInput">Upload merch images</label>
+              <input
+                type="file"
+                id="merchImagesInput"
+                name="images"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+              >
+              <p class="help-text" id="merchImagesHelp">
+                Select one or more images from your computer. You can assign variant-specific images after creation on the edit page.
+              </p>
+            </div>
 
-      <div id="apparelVariantFields">
-        <p>
-          <label>Colors (comma-separated)</label><br/>
-          <input id="apparelColorsInput" placeholder="Black, Cream">
-        </p>
+            <div class="field-full option-row">
+              <span class="field-label">Variant type</span>
+              <div class="inline-options">
+                <label><input type="radio" name="variantBuilderType" class="variant-type-radio" value="apparel" checked> Apparel</label>
+                <label><input type="radio" name="variantBuilderType" class="variant-type-radio" value="format"> Format</label>
+              </div>
+            </div>
 
-        <p id="apparelSizesWrap">
-          <label>Sizes</label><br/>
-          <label><input type="checkbox" class="apparel-size" value="Small"> Small</label>
-          <label><input type="checkbox" class="apparel-size" value="Medium"> Medium</label>
-          <label><input type="checkbox" class="apparel-size" value="Large"> Large</label>
-          <label><input type="checkbox" class="apparel-size" value="XL"> XL</label>
-          <label><input type="checkbox" class="apparel-size" value="XXL"> XXL</label>
-          <label><input type="checkbox" class="apparel-size" value="XXXL"> XXXL</label>
-          <label><input type="checkbox" class="apparel-size" value="4XL"> 4XL</label>
-        </p>
-      </div>
+            <div class="field-full" id="apparelVariantFields">
+              <label for="apparelColorsInput">Colors</label>
+              <input id="apparelColorsInput" placeholder="Black, Cream">
+              <p class="help-text">Separate multiple colors with commas.</p>
+            </div>
 
-      <p id="formatOptionsWrap" hidden style="display:none;">
-        <label>Formats</label><br/>
-        <label><input type="checkbox" class="format-option" value="CD"> CD</label>
-        <label><input type="checkbox" class="format-option" value="Cassette"> Cassette</label>
-        <label><input type="checkbox" class="format-option" value='7" Vinyl'> 7" Vinyl</label>
-        <label><input type="checkbox" class="format-option" value='12" Vinyl'> 12" Vinyl</label>
-      </p>
+            <div class="field-full option-row" id="apparelSizesWrap">
+              <span class="field-label">Sizes</span>
+              <div class="inline-options">
+                <label><input type="checkbox" class="apparel-size" value="Small"> Small</label>
+                <label><input type="checkbox" class="apparel-size" value="Medium"> Medium</label>
+                <label><input type="checkbox" class="apparel-size" value="Large"> Large</label>
+                <label><input type="checkbox" class="apparel-size" value="XL"> XL</label>
+                <label><input type="checkbox" class="apparel-size" value="XXL"> XXL</label>
+                <label><input type="checkbox" class="apparel-size" value="XXXL"> XXXL</label>
+                <label><input type="checkbox" class="apparel-size" value="4XL"> 4XL</label>
+              </div>
+            </div>
 
-      <p id="apparelBasePriceWrap">
-        <label>Base price (cents)</label><br/>
-        <input id="apparelBasePriceInput" type="number" min="0" placeholder="2500">
-      </p>
+            <div class="field-full option-row" id="formatOptionsWrap" hidden style="display:none;">
+              <span class="field-label">Formats</span>
+              <div class="inline-options">
+                <label><input type="checkbox" class="format-option" value="CD"> CD</label>
+                <label><input type="checkbox" class="format-option" value="Cassette"> Cassette</label>
+                <label><input type="checkbox" class="format-option" value='7" Vinyl'> 7" Vinyl</label>
+                <label><input type="checkbox" class="format-option" value='12" Vinyl'> 12" Vinyl</label>
+              </div>
+            </div>
 
-      <p id="apparelDefaultStockWrap">
-        <label>Stock per variant</label><br/>
-        <input id="apparelDefaultStockInput" type="number" min="0" placeholder="10">
-      </p>
+            <div class="field" id="apparelBasePriceWrap">
+              <label for="apparelBasePriceInput">Base price (cents)</label>
+              <input id="apparelBasePriceInput" type="number" min="0" placeholder="2500">
+            </div>
 
-      <p>
-        <button type="button" id="generateVariantsButton">Create Variants</button>
-      </p>
+            <div class="field" id="apparelDefaultStockWrap">
+              <label for="apparelDefaultStockInput">Stock per variant</label>
+              <input id="apparelDefaultStockInput" type="number" min="0" placeholder="10">
+            </div>
+          </div>
 
-      <p><strong>Variant List</strong></p>
-      <p id="variantHelp"></p>
+          <div class="action-row">
+            <button type="button" id="generateVariantsButton">Create Variants</button>
+          </div>
 
-      <table border="1" cellpadding="6" id="variantTable">
-        <tr>
-          <th>Name</th>
-          <th>Price (cents)</th>
-          <th>Stock</th>
-          <th>Actions</th>
-        </tr>
-        <tbody id="variantRows">
-          <% initialVariants.forEach((variant, index) => { %>
-            <tr class="variant-row" data-index="<%= index %>">
-              <td>
-                <input name="variantNames" value="<%= variant.name || "" %>">
-              </td>
-              <td>
-                <input name="variantPrices" type="number" min="0" placeholder="2500" value="<%= variant.priceCents || "" %>">
-              </td>
-              <td>
-                <input name="variantStocks" type="number" min="0" placeholder="25" value="<%= variant.stockQty || "" %>">
-              </td>
-              <td>
-                <button type="button" class="remove-variant">Remove</button>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
+          <div class="section-heading" style="margin-top: 28px;">
+            <h2>Variant List</h2>
+            <p id="variantHelp"></p>
+          </div>
 
-      <p>
-        <button type="button" id="addVariantButton">Add Variant</button>
-      </p>
-    </div>
+          <div class="variant-table-wrap">
+            <table id="variantTable">
+              <tr>
+                <th>Name</th>
+                <th>Price (cents)</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+              <tbody id="variantRows">
+                <% initialVariants.forEach((variant, index) => { %>
+                  <tr class="variant-row" data-index="<%= index %>">
+                    <td>
+                      <input name="variantNames" value="<%= variant.name || "" %>">
+                    </td>
+                    <td>
+                      <input name="variantPrices" type="number" min="0" placeholder="2500" value="<%= variant.priceCents || "" %>">
+                    </td>
+                    <td>
+                      <input name="variantStocks" type="number" min="0" placeholder="25" value="<%= variant.stockQty || "" %>">
+                    </td>
+                    <td>
+                      <button type="button" class="remove-variant secondary-button">Remove</button>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
 
-    <button type="submit">Create</button>
-  </form>
+          <div class="action-row">
+            <button type="button" id="addVariantButton" class="secondary-button">Add Variant</button>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button type="submit">Create</button>
+          <a href="/admin/products" class="back-link">Back</a>
+        </div>
+      </form>
+    </section>
+  </main>
 
   <template id="variantRowTemplate">
     <tr class="variant-row">
@@ -261,10 +579,12 @@
     </tr>
   </template>
 
-  <p><a href="/admin/products">Back</a></p>
-
   <script>
+    const nameField = document.getElementById("nameField");
     const nameInput = document.getElementById("nameInput");
+    const nameHelp = document.getElementById("nameHelp");
+    const ticketNamePreviewWrap = document.getElementById("ticketNamePreviewWrap");
+    const ticketNamePreview = document.getElementById("ticketNamePreview");
     const slugInput = document.getElementById("slugInput");
     const typeSelect = document.getElementById("typeSelect");
     const ticketModeSelect = document.getElementById("ticketModeSelect");
@@ -311,20 +631,52 @@
         .replace(/-{2,}/g, "-");
     }
 
+    function formatTicketName() {
+      return [venueCityInput.value.trim(), venueStateInput.value.trim()].filter(Boolean).join(", ");
+    }
+
+    function formatTicketSlugSource() {
+      const eventDate = eventDateInput.value.trim().slice(0, 10);
+      return ["auh", venueCityInput.value.trim(), eventDate].filter(Boolean).join("-");
+    }
+
     function syncSlugEditedState() {
       const currentSlug = slugify(slugInput.value);
-      const generatedSlug = slugify(nameInput.value);
+      const generatedSlug = typeSelect.value === "ticket"
+        ? slugify(formatTicketSlugSource() || formatTicketName())
+        : slugify(nameInput.value);
       slugEditedManually = Boolean(currentSlug) && currentSlug !== generatedSlug;
     }
 
     function syncSlugFromName(force = false) {
-      const generatedSlug = slugify(nameInput.value);
+      const generatedSlug = typeSelect.value === "ticket"
+        ? slugify(formatTicketSlugSource() || formatTicketName())
+        : slugify(nameInput.value);
       const currentSlug = slugify(slugInput.value);
 
       if (force || !slugEditedManually || !currentSlug) {
         slugInput.value = generatedSlug;
         slugEditedManually = false;
       }
+    }
+
+    function syncTicketIdentity(forceSlug = false) {
+      const isTicket = typeSelect.value === "ticket";
+
+      setSectionVisible(nameField, !isTicket);
+      setSectionVisible(ticketNamePreviewWrap, isTicket);
+      nameInput.readOnly = isTicket;
+      nameInput.required = !isTicket;
+      nameHelp.textContent = "Used as the product title on the storefront.";
+
+      if (!isTicket) {
+        ticketNamePreview.textContent = nameInput.value.trim() || "Name will appear here.";
+        return;
+      }
+
+      nameInput.value = formatTicketName();
+      ticketNamePreview.textContent = nameInput.value || "Ticket name will appear here once city and state are entered.";
+      syncSlugFromName(forceSlug);
     }
 
     function getVariantInputs() {
@@ -445,7 +797,7 @@
 
     function setSectionVisible(element, isVisible) {
       element.hidden = !isVisible;
-      element.style.display = isVisible ? "block" : "none";
+      element.style.display = isVisible ? (element.dataset.display || "block") : "none";
     }
 
     function syncFormState() {
@@ -512,6 +864,8 @@
           ? "These rows are the variants that will be saved. You can edit them or add more manually."
           : "";
       }
+
+      syncTicketIdentity();
     }
 
     function initializeFormState() {
@@ -554,6 +908,18 @@
       syncSlugFromName();
     });
 
+    eventDateInput.addEventListener("input", () => {
+      syncTicketIdentity();
+    });
+
+    venueCityInput.addEventListener("input", () => {
+      syncTicketIdentity();
+    });
+
+    venueStateInput.addEventListener("input", () => {
+      syncTicketIdentity();
+    });
+
     slugInput.addEventListener("input", () => {
       const normalizedSlug = slugify(slugInput.value);
       if (slugInput.value !== normalizedSlug) {
@@ -582,13 +948,20 @@
       }
     });
 
-    typeSelect.addEventListener("change", syncFormState);
+    typeSelect.addEventListener("change", () => {
+      if (typeSelect.value === "ticket") {
+        slugEditedManually = false;
+      }
+
+      syncFormState();
+    });
     ticketModeSelect.addEventListener("change", syncFormState);
     variantTypeInputs.forEach((input) => {
       input.addEventListener("change", syncFormState);
     });
     generateVariantsButton.addEventListener("click", generateVariants);
     initializeFormState();
+    syncTicketIdentity(true);
     window.addEventListener("load", syncFormState);
     window.addEventListener("pageshow", syncFormState);
     window.setTimeout(syncFormState, 0);

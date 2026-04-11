@@ -1,3 +1,11 @@
+    @font-face {
+      font-family: "VCR OSD Mono";
+      src: url("/fonts/VCR_OSD_MONO_1.001.ttf") format("truetype");
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -10,7 +18,7 @@
       margin: 0;
       background: #050505;
       color: #f4f1ec;
-      font-family: Arial, sans-serif;
+      font-family: "VCR OSD Mono", Arial, sans-serif;
       line-height: 1.5;
     }
 
@@ -26,13 +34,36 @@
 
     body.public-page-template .site-header {
       position: fixed;
+      top: 0;
       left: 0;
       right: 0;
       background: linear-gradient(to bottom, rgba(0, 0, 0, 0.74), rgba(0, 0, 0, 0));
       border-bottom: 0;
       color: #fff;
       margin-bottom: 0;
-      padding: 14px 18px 36px;
+      padding: 18px 20px 8px;
+    }
+
+    body.public-page-template .site-header__bar {
+      align-items: flex-start;
+    }
+
+    body.public-page-template .site-header__center {
+      display: none;
+    }
+
+    body.public-page-template .site-header__left,
+    body.public-page-template .site-header__right {
+      flex: 0 0 auto;
+    }
+
+    body.public-page-template .site-header__left {
+      min-width: 180px;
+    }
+
+    body.public-page-template .site-header__right {
+      margin-left: auto;
+      min-width: 40px;
     }
 
     body.public-page-template .site-header__toggle {
@@ -73,9 +104,11 @@
 
     body.public-page-template .site-header__desktop-nav {
       position: fixed;
-      top: 23px;
+      top: 26px;
       left: 50%;
       z-index: 1001;
+      gap: 28px;
+      margin-top: 0;
       transform: translateX(-50%);
       color: #fff;
     }
@@ -99,13 +132,20 @@
 
     @media (max-width: 560px) {
       body.public-page-template .site-header {
-        padding-bottom: 28px;
+        padding-left: 18px;
+        padding-right: 18px;
       }
 
       body.public-page-template .site-header__desktop-nav {
-        gap: 12px 16px;
-        padding: 0 14px;
-        font-size: 0.6rem;
+        top: 72px;
+        width: min(calc(100% - 40px), 520px);
+        gap: 14px 18px;
+        padding: 0;
+        font-size: 0.74rem;
+      }
+
+      body.public-page-template .site-header__left {
+        min-width: 0;
       }
 
       body.public-page-template.standard-shell-page #site-shell-content {

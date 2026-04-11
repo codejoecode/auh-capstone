@@ -182,6 +182,35 @@
       color: rgba(244, 241, 236, 0.78);
     }
 
+    .product-merch-form {
+      display: grid;
+      gap: 22px;
+    }
+
+    .product-merch-summary {
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .product-merch-summary__name {
+      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .product-merch-summary__meta {
+      margin: 10px 0 0;
+      color: rgba(244, 241, 236, 0.78);
+    }
+
+    .product-merch-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+    }
+
     .product-variant-list {
       list-style: none;
       margin: 0;
@@ -212,13 +241,15 @@
     }
 
     .product-actions,
-    .product-variant form {
+    .product-variant form,
+    .product-merch-actions {
       margin: 0;
     }
 
     .product-button,
     .product-actions a,
-    .product-variant button {
+    .product-variant button,
+    .product-merch-actions button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -242,9 +273,17 @@
     .product-actions a:hover,
     .product-actions a:focus-visible,
     .product-variant button:hover,
-    .product-variant button:focus-visible {
+    .product-variant button:focus-visible,
+    .product-merch-actions button:hover,
+    .product-merch-actions button:focus-visible {
       background: #fff;
       color: #050505;
+    }
+
+    .product-variant button:disabled,
+    .product-merch-actions button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
 
     .product-actions {
@@ -292,6 +331,32 @@
 <body class="public-page-template" data-shell-page="public">
   <% const merchImageList = merchImages && merchImages.images ? merchImages.images : []; %>
   <% const merchDefaultImage = merchImages && merchImages.defaultImage ? merchImages.defaultImage : null; %>
+  <% const merchSplitVariantOptions = []; %>
+  <% const merchSupportsSplitSelectors = product.type === "merch" && variants.length > 0 && variants.every((variant) => variant.name.includes(" / ")); %>
+  <% const merchVariantImageMap = new Map(); %>
+  <% if (merchImages && merchImages.variantImages) { %>
+    <% merchImages.variantImages.forEach((image) => { %>
+      <% if (!merchVariantImageMap.has(Number(image.variant_id))) { %>
+        <% merchVariantImageMap.set(Number(image.variant_id), image); %>
+      <% } %>
+    <% }) %>
+  <% } %>
+  <% if (merchSupportsSplitSelectors) { %>
+    <% variants.forEach((variant) => { %>
+      <% const parts = variant.name.split(" / "); %>
+      <% if (parts.length >= 2) { %>
+        <% merchSplitVariantOptions.push({
+          id: Number(variant.id),
+          color: parts.slice(0, -1).join(" / ").trim(),
+          size: parts[parts.length - 1].trim(),
+          price: `$${(variant.price_cents / 100).toFixed(2)}`,
+          stock: Number(variant.stock_qty),
+          image: merchVariantImageMap.get(Number(variant.id)) || null,
+          name: variant.name,
+        }); %>
+      <% } %>
+    <% }) %>
+  <% } %>
   <%- include("../partials/header") %>
   <main id="site-shell-content" class="product-page">
     <section class="product-experience" aria-labelledby="product-title">
@@ -404,43 +469,74 @@
                 </ul>
               <% } %>
             <% } else { %>
-              <% if (variants.length > 0) { %>
-                <div class="product-merch-picker">
-                  <label for="variantSelect">Preview Variant Image</label>
-                  <select id="variantSelect">
-                    <option value="">Default product image</option>
-                    <% variants.forEach((v) => { %>
-                      <% const variantImage = merchImages.variantImages.find((image) => Number(image.variant_id) === Number(v.id)); %>
-                      <option value="<%= v.id %>" data-image-path="<%= variantImage ? variantImage.image_path : "" %>" data-image-alt="<%= variantImage ? (variantImage.alt_text || product.name) : product.name %>">
-                        <%= v.name %>
-                      </option>
-                    <% }) %>
-                  </select>
-                </div>
-              <% } %>
-
-              <ul class="product-variant-list">
-                <% variants.forEach(v => { %>
-                  <li class="product-variant">
-                    <div>
-                      <h3 class="product-variant__name"><%= v.name %></h3>
-                      <p class="product-variant__meta">
-                        $<%= (v.price_cents / 100).toFixed(2) %> - Stock: <%= v.stock_qty %>
-                      </p>
+              <% if (variants.length === 0) { %>
+                <p class="product-note"><em>Variants are not listed yet.</em></p>
+              <% } else { %>
+                <% const firstVariant = variants[0]; %>
+                <% const hasSingleMerchVariant = variants.length === 1; %>
+                <% let initialVariant = firstVariant; %>
+                <form action="/cart/add" method="POST" class="product-merch-form">
+                  <% if (merchSupportsSplitSelectors) { %>
+                    <% const colorOptions = [...new Set(merchSplitVariantOptions.map((option) => option.color))]; %>
+                    <% const initialColor = colorOptions[0] || ""; %>
+                    <% const sizeOptions = merchSplitVariantOptions.filter((option) => option.color === initialColor).map((option) => option.size); %>
+                    <% const initialSplitVariant = merchSplitVariantOptions.find((option) => option.color === initialColor && option.size === (sizeOptions[0] || "")) || merchSplitVariantOptions[0] || null; %>
+                    <% initialVariant = initialSplitVariant ? (variants.find((variant) => Number(variant.id) === Number(initialSplitVariant.id)) || firstVariant) : firstVariant; %>
+                    <div class="product-merch-picker">
+                      <label for="variantColorSelect">Select Color</label>
+                      <select id="variantColorSelect">
+                        <% colorOptions.forEach((color) => { %>
+                          <option value="<%= color %>"><%= color %></option>
+                        <% }) %>
+                      </select>
                     </div>
 
-                    <% if (v.stock_qty > 0) { %>
-                      <form action="/cart/add" method="POST">
-                        <input type="hidden" name="variantId" value="<%= v.id %>">
-                        <input type="hidden" name="qty" value="1">
-                        <button type="submit">Add to Cart</button>
-                      </form>
-                    <% } else { %>
-                      <p class="product-note"><em>Out of stock</em></p>
-                    <% } %>
-                  </li>
-                <% }) %>
-              </ul>
+                    <div class="product-merch-picker">
+                      <label for="variantSizeSelect">Select Size</label>
+                      <select id="variantSizeSelect">
+                        <% sizeOptions.forEach((size) => { %>
+                          <option value="<%= size %>"><%= size %></option>
+                        <% }) %>
+                      </select>
+                    </div>
+
+                    <input id="variantIdInput" type="hidden" name="variantId" value="<%= initialVariant.id %>">
+                  <% } else if (!hasSingleMerchVariant) { %>
+                    <div class="product-merch-picker">
+                      <label for="variantSelect">Select Variant</label>
+                      <select id="variantSelect" name="variantId">
+                        <% variants.forEach((v) => { %>
+                          <% const variantImage = merchVariantImageMap.get(Number(v.id)); %>
+                          <option
+                            value="<%= v.id %>"
+                            data-image-path="<%= variantImage ? variantImage.image_path : (merchDefaultImage ? merchDefaultImage.image_path : "") %>"
+                            data-image-alt="<%= variantImage ? (variantImage.alt_text || product.name) : (merchDefaultImage ? (merchDefaultImage.alt_text || product.name) : product.name) %>"
+                            data-price="$<%= (v.price_cents / 100).toFixed(2) %>"
+                            data-stock="<%= v.stock_qty %>"
+                          >
+                            <%= v.name %>
+                          </option>
+                        <% }) %>
+                      </select>
+                    </div>
+                  <% } else { %>
+                    <input type="hidden" name="variantId" value="<%= firstVariant.id %>">
+                  <% } %>
+
+                  <div class="product-merch-summary">
+                    <h3 id="variantSummaryName" class="product-merch-summary__name"><%= merchSupportsSplitSelectors ? initialVariant.name : firstVariant.name %></h3>
+                    <p id="variantSummaryMeta" class="product-merch-summary__meta">
+                      $<%= ((merchSupportsSplitSelectors ? initialVariant.price_cents : firstVariant.price_cents) / 100).toFixed(2) %> - Stock: <%= merchSupportsSplitSelectors ? initialVariant.stock_qty : firstVariant.stock_qty %>
+                    </p>
+                  </div>
+
+                  <div class="product-merch-actions">
+                    <input type="hidden" name="qty" value="1">
+                    <button id="addToCartButton" type="submit" <%= (merchSupportsSplitSelectors ? initialVariant.stock_qty : firstVariant.stock_qty) > 0 ? "" : "disabled" %>>Add to Cart</button>
+                    <p id="variantStockNote" class="product-note"><%= (merchSupportsSplitSelectors ? initialVariant.stock_qty : firstVariant.stock_qty) > 0 ? "" : "Out of stock" %></p>
+                  </div>
+                </form>
+              <% } %>
             <% } %>
 
             <p class="product-actions"><a href="/cart">Go to Cart</a></p>
@@ -449,42 +545,27 @@
       </div>
     </section>
   </main>
-  <%- include("../partials/public_shell_bootstrap") %>
-  <% if (product.type === "merch" && merchDefaultImage) { %>
-    <script>
-      const productMainImage = document.getElementById("productMainImage");
-      const variantSelect = document.getElementById("variantSelect");
-      const defaultProductImage = <%- JSON.stringify({
-        path: merchDefaultImage.image_path,
-        alt: merchDefaultImage.alt_text || product.name,
-      }) %>;
-
-      function setMainImage(path, alt) {
-        if (!productMainImage || !path) return;
-        productMainImage.src = path;
-        productMainImage.alt = alt || <%- JSON.stringify(product.name) %>;
-      }
-
-      document.querySelectorAll(".product-thumbnail").forEach((button) => {
-        button.addEventListener("click", () => {
-          setMainImage(button.dataset.imagePath, button.dataset.imageAlt);
-        });
-      });
-
-      if (variantSelect) {
-        variantSelect.addEventListener("change", () => {
-          const selectedOption = variantSelect.options[variantSelect.selectedIndex];
-          const variantImagePath = selectedOption.dataset.imagePath;
-          const variantImageAlt = selectedOption.dataset.imageAlt;
-
-          if (variantImagePath) {
-            setMainImage(variantImagePath, variantImageAlt);
-          } else {
-            setMainImage(defaultProductImage.path, defaultProductImage.alt);
-          }
-        });
-      }
+  <% if (product.type === "merch" && variants.length > 0) { %>
+    <script id="productVariantConfig" type="application/json">
+      <%- JSON.stringify({
+        productName: product.name,
+        defaultProductImage: {
+          path: merchDefaultImage ? merchDefaultImage.image_path : "",
+          alt: merchDefaultImage ? (merchDefaultImage.alt_text || product.name) : product.name,
+        },
+        splitVariantOptions: merchSplitVariantOptions.map((option) => ({
+          id: option.id,
+          color: option.color,
+          size: option.size,
+          name: option.name,
+          price: option.price,
+          stock: option.stock,
+          imagePath: option.image ? option.image.image_path : (merchDefaultImage ? merchDefaultImage.image_path : ""),
+          imageAlt: option.image ? (option.image.alt_text || product.name) : (merchDefaultImage ? (merchDefaultImage.alt_text || product.name) : product.name),
+        })),
+      }) %>
     </script>
   <% } %>
+  <%- include("../partials/public_shell_bootstrap") %>
 </body>
 </html>

@@ -1,36 +1,172 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title><%= title %></title></head>
+<head><meta charset="utf-8"><title><%= title %></title><%- include("../partials/admin_shell_styles") %></head>
 <body>
+  <style>
+    .filter-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .filter-label {
+      color: var(--admin-soft);
+      font-size: 0.95rem;
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .filter-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 8px 16px;
+      border: 1px solid var(--admin-border);
+      border-radius: 999px;
+      background: #fffdfa;
+      color: var(--admin-text);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .filter-pill.active {
+      background: var(--admin-accent);
+      color: #fff;
+      border-color: var(--admin-accent);
+    }
+
+    .filter-summary {
+      margin: 0 0 18px;
+      color: var(--admin-soft);
+    }
+
+    .is-hidden {
+      display: none;
+    }
+  </style>
   <%- include("../partials/header") %>
-  <h1><%= title %></h1>
+  <main class="admin-page">
+    <% const ticketCount = products.filter(p => p.type === "ticket").length; %>
+    <% const merchCount = products.filter(p => p.type === "merch").length; %>
+    <section class="page-intro">
+      <h1><%= title %></h1>
+      <p>Review products, open edits quickly, and toggle live status from one table.</p>
+    </section>
 
-  <p><a href="/admin/products/new">+ New Product</a></p>
+    <section class="admin-card">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span>Total products</span>
+          <strong><%= products.length %></strong>
+        </div>
+        <div class="stat-card">
+          <span>Active</span>
+          <strong><%= products.filter(p => p.is_active).length %></strong>
+        </div>
+        <div class="stat-card">
+          <span>Inactive</span>
+          <strong><%= products.filter(p => !p.is_active).length %></strong>
+        </div>
+      </div>
 
-  <table border="1" cellpadding="6">
-    <tr>
-      <th>Name</th>
-      <th>Type</th>
-      <th>Slug</th>
-      <th>Active</th>
-      <th>Actions</th>
-    </tr>
-    <% products.forEach(p => { %>
-      <tr>
-  <td><%= p.name %></td>
-  <td><%= p.type %></td>
-  <td><%= p.slug %></td>
-  <td><%= p.is_active ? "Active" : "Inactive" %></td>
-  <td>
-    <a href="/admin/products/<%= p.id %>/edit">Edit</a>
-    <form action="/admin/products/<%= p.id %>/toggle" method="POST" style="display:inline;">
-      <button type="submit"><%= p.is_active ? "Deactivate" : "Activate" %></button>
-    </form>
-  </td>
-</tr>
-    <% }) %>
-  </table>
+      <div class="admin-actions">
+        <a href="/admin/products/new" class="admin-link-button">New Product</a>
+        <a href="/admin" class="admin-link-button secondary">Back to Admin</a>
+      </div>
+    </section>
 
-  <p><a href="/admin">Back to Admin</a></p>
+    <section class="admin-card">
+      <div class="section-title">
+        <h2>Product List</h2>
+        <p>Switch between all products, tickets, or merch to keep the list easier to scan.</p>
+      </div>
+
+      <div class="filter-toolbar" aria-label="Product type filters">
+        <span class="filter-label">Show</span>
+        <div class="filter-pills">
+          <button type="button" class="filter-pill active" data-filter="all">All (<%= products.length %>)</button>
+          <button type="button" class="filter-pill" data-filter="ticket">Tickets (<%= ticketCount %>)</button>
+          <button type="button" class="filter-pill" data-filter="merch">Merch (<%= merchCount %>)</button>
+        </div>
+      </div>
+
+      <p class="filter-summary" id="filterSummary">Showing all <%= products.length %> products.</p>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Slug</th>
+            <th>Active</th>
+            <th>Actions</th>
+          </tr>
+          <% products.forEach(p => { %>
+            <tr class="product-row" data-type="<%= p.type %>">
+              <td><%= p.name %></td>
+              <td><%= p.type %></td>
+              <td><%= p.slug %></td>
+              <td><%= p.is_active ? "Active" : "Inactive" %></td>
+              <td>
+                <div class="table-actions">
+                  <a href="/admin/products/<%= p.id %>/edit">Edit</a>
+                  <form action="/admin/products/<%= p.id %>/toggle" method="POST">
+                    <button type="submit" class="secondary"><%= p.is_active ? "Deactivate" : "Activate" %></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }) %>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script>
+    const filterButtons = Array.from(document.querySelectorAll(".filter-pill"));
+    const productRows = Array.from(document.querySelectorAll(".product-row"));
+    const filterSummary = document.getElementById("filterSummary");
+    const productCounts = {
+      all: <%= products.length %>,
+      ticket: <%= ticketCount %>,
+      merch: <%= merchCount %>,
+    };
+
+    function updateSummary(filter) {
+      if (filter === "all") {
+        filterSummary.textContent = `Showing all ${productCounts.all} products.`;
+        return;
+      }
+
+      const label = filter === "ticket" ? "ticket" : "merch";
+      const plural = productCounts[filter] === 1 ? "" : "s";
+      filterSummary.textContent = `Showing ${productCounts[filter]} ${label} product${plural}.`;
+    }
+
+    function applyFilter(filter) {
+      filterButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.filter === filter);
+      });
+
+      productRows.forEach((row) => {
+        const matches = filter === "all" || row.dataset.type === filter;
+        row.classList.toggle("is-hidden", !matches);
+      });
+
+      updateSummary(filter);
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        applyFilter(button.dataset.filter);
+      });
+    });
+  </script>
 </body>
 </html>

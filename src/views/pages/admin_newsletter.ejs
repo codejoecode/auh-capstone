@@ -1,33 +1,53 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title><%= title %></title></head>
+<head><meta charset="utf-8"><title><%= title %></title><%- include("../partials/admin_shell_styles") %></head>
 <body>
   <%- include("../partials/header") %>
-  <h1><%= title %></h1>
+  <main class="admin-page">
+    <section class="page-intro">
+      <h1><%= title %></h1>
+      <p>Newsletter signups, cleaned up into a simpler admin table.</p>
+    </section>
 
-  <% if (signups.length === 0) { %>
-    <p>No newsletter signups yet.</p>
-  <% } else { %>
-    <table border="1" cellpadding="6">
-      <tr>
-        <th>Email</th>
-        <th>Created At</th>
-        <th>Actions</th>
-      </tr>
-      <% signups.forEach(signup => { %>
-        <tr>
-          <td><%= signup.email %></td>
-          <td><%= signup.created_at %></td>
-          <td>
-            <form action="/admin/newsletter/<%= signup.id %>/delete" method="POST" style="display:inline;">
-              <button type="submit" onclick="return confirm('Remove this signup?');">Remove</button>
-            </form>
-          </td>
-        </tr>
-      <% }) %>
-    </table>
-  <% } %>
+    <section class="admin-card">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span>Total signups</span>
+          <strong><%= signups.length %></strong>
+        </div>
+      </div>
 
-  <p><a href="/admin">Back to Admin</a></p>
+      <div class="admin-actions">
+        <a href="/admin" class="admin-link-button secondary">Back to Admin</a>
+      </div>
+    </section>
+
+    <section class="admin-card">
+      <% if (signups.length === 0) { %>
+        <p class="empty-state">No newsletter signups yet.</p>
+      <% } else { %>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <tr>
+              <th>Email</th>
+              <th>Created At</th>
+              <th>Actions</th>
+            </tr>
+            <% signups.forEach(signup => { %>
+              <tr>
+                <td><%= signup.email %></td>
+                <td><%= signup.created_at %></td>
+                <td>
+                  <form action="/admin/newsletter/<%= signup.id %>/delete" method="POST">
+                    <button type="submit" class="secondary" onclick="return confirm('Remove this signup?');">Remove</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </table>
+        </div>
+      <% } %>
+    </section>
+  </main>
 </body>
 </html>

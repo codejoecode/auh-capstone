@@ -19,6 +19,7 @@
     var DEFAULT_VOLUME = 0.2;
     var audio = document.getElementById("site-global-audio");
     var activeRequestId = 0;
+    var homeLatestReleaseScrollLockUntil = 0;
 
     if (!audio) return;
 
@@ -214,6 +215,10 @@
       updateBodyFrom(nextDocument.body);
       closeNavMenu();
       syncAudioUi();
+      syncHomeLatestReleaseUi();
+      syncMusicDiscographyUi();
+      initStoreCarousels();
+      initProductPageUi();
     }
 
     function scrollAfterNavigation(url, fromPopState) {
@@ -230,28 +235,440 @@
       }
     }
 
-    function fetchAndSwap(url, options) {
-      var requestId = ++activeRequestId;
+    function syncHomeLatestReleaseUi() {
+      var homePage = document.querySelector(".home-page");
+      var latestReleaseToggle = document.getElementById("latestReleaseToggle");
+      var isOpen;
 
-      return fetch(url.toString(), {
+      if (!latestReleaseToggle) return;
+
+      isOpen = !!homePage && homePage.classList.contains("home-page--latest-open");
+      latestReleaseToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    }
+
+    function setHomeLatestReleaseOpen(nextOpen) {
+      var homePage = document.querySelector(".home-page");
+      var latestReleaseToggle = document.getElementById("latestReleaseToggle");
+
+      if (!homePage || !latestReleaseToggle) return false;
+
+      homePage.classList.toggle("home-page--latest-open", !!nextOpen);
+      latestReleaseToggle.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+      return true;
+    }
+
+    function syncMusicDiscographyUi() {
+      var musicPage = document.querySelector(".music-page");
+      var discographyToggle = document.getElementById("discographyToggle");
+      var isOpen;
+
+      if (!discographyToggle) return;
+
+      isOpen = !!musicPage && musicPage.classList.contains("music-page--discography-open");
+      discographyToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    }
+
+    function setMusicDiscographyOpen(nextOpen) {
+      var musicPage = document.querySelector(".music-page");
+      var discographyToggle = document.getElementById("discographyToggle");
+
+      if (!musicPage || !discographyToggle) return false;
+
+      musicPage.classList.toggle("music-page--discography-open", !!nextOpen);
+      discographyToggle.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+      return true;
+    }
+
+    function initProductPageUi() {
+      var productPage = document.querySelector(".product-page");
+      var configElement;
+      var config;
+      var productMainImage;
+      var variantSelect;
+      var variantColorSelect;
+      var variantSizeSelect;
+      var variantIdInput;
+      var variantSummaryName;
+      var variantSummaryMeta;
+      var variantStockNote;
+      var addToCartButton;
+      var splitVariantOptions;
+      var defaultProductImage;
+
+      if (!productPage || productPage.__auhProductPageInitialized) return;
+
+      productPage.__auhProductPageInitialized = true;
+      productMainImage = document.getElementById("productMainImage");
+      variantSelect = document.getElementById("variantSelect");
+      variantColorSelect = document.getElementById("variantColorSelect");
+      variantSizeSelect = document.getElementById("variantSizeSelect");
+      variantIdInput = document.getElementById("variantIdInput");
+      variantSummaryName = document.getElementById("variantSummaryName");
+      variantSummaryMeta = document.getElementById("variantSummaryMeta");
+      variantStockNote = document.getElementById("variantStockNote");
+      addToCartButton = document.getElementById("addToCartButton");
+      configElement = document.getElementById("productVariantConfig");
+
+      if (!productMainImage && !variantSelect && !variantColorSelect && !variantSizeSelect) {
+        return;
+      }
+
+      try {
+        config = configElement ? JSON.parse(configElement.textContent || "{}") : {};
+      } catch (_error) {
+        config = {};
+      }
+
+      splitVariantOptions = Array.isArray(config.splitVariantOptions) ? config.splitVariantOptions : [];
+      defaultProductImage = config.defaultProductImage || { path: "", alt: config.productName || "" };
+
+      function setMainImage(path, alt) {
+        if (!productMainImage || !path) return;
+        productMainImage.src = path;
+        productMainImage.alt = alt || config.productName || productMainImage.alt || "";
+      }
+
+      function syncVariantSummary(variantData) {
+        var stockQty;
+        var isInStock;
+
+        if (!variantData) return;
+
+        if (variantSummaryName) {
+          variantSummaryName.textContent = variantData.name;
+        }
+
+        if (variantSummaryMeta) {
+          variantSummaryMeta.textContent = String(variantData.price || "") + " - Stock: " + String(variantData.stock || 0);
+        }
+
+        stockQty = Number(variantData.stock || 0);
+        isInStock = stockQty > 0;
+
+        if (addToCartButton) {
+          addToCartButton.disabled = !isInStock;
+        }
+
+        if (variantStockNote) {
+          variantStockNote.textContent = isInStock ? "" : "Out of stock";
+        }
+      }
+
+      function syncFromSingleSelect() {
+        var selectedOption;
+        var variantData;
+
+        if (!variantSelect) return;
+        selectedOption = variantSelect.options[variantSelect.selectedIndex];
+        if (!selectedOption) return;
+
+        variantData = {
+          name: selectedOption.textContent.trim(),
+          price: selectedOption.dataset.price,
+          stock: selectedOption.dataset.stock,
+          imagePath: selectedOption.dataset.imagePath,
+          imageAlt: selectedOption.dataset.imageAlt
+        };
+
+        if (variantData.imagePath) {
+          setMainImage(variantData.imagePath, variantData.imageAlt);
+        } else {
+          setMainImage(defaultProductImage.path, defaultProductImage.alt);
+        }
+
+        syncVariantSummary(variantData);
+      }
+
+      function getSelectedSplitVariant() {
+        if (!variantColorSelect || !variantSizeSelect) return null;
+
+        return splitVariantOptions.find(function (option) {
+          return option.color === variantColorSelect.value && option.size === variantSizeSelect.value;
+        }) || null;
+      }
+
+      function populateSizeOptions() {
+        var sizes;
+        var uniqueSizes;
+        var previousSize;
+        var nextSize;
+
+        if (!variantColorSelect || !variantSizeSelect) return;
+
+        sizes = splitVariantOptions
+          .filter(function (option) {
+            return option.color === variantColorSelect.value;
+          })
+          .map(function (option) {
+            return option.size;
+          });
+        uniqueSizes = Array.from(new Set(sizes));
+        previousSize = variantSizeSelect.value;
+        variantSizeSelect.innerHTML = "";
+
+        uniqueSizes.forEach(function (size) {
+          var option = document.createElement("option");
+          option.value = size;
+          option.textContent = size;
+          variantSizeSelect.appendChild(option);
+        });
+
+        if (!uniqueSizes.length) {
+          variantSizeSelect.selectedIndex = -1;
+          return;
+        }
+
+        nextSize = uniqueSizes.indexOf(previousSize) !== -1 ? previousSize : uniqueSizes[0];
+        variantSizeSelect.value = nextSize;
+
+        if (variantSizeSelect.value !== nextSize) {
+          variantSizeSelect.selectedIndex = 0;
+        }
+      }
+
+      function syncFromSplitSelectors() {
+        var selectedVariant = getSelectedSplitVariant();
+
+        if (!selectedVariant) return;
+
+        if (variantIdInput) {
+          variantIdInput.value = selectedVariant.id;
+        }
+
+        if (selectedVariant.imagePath) {
+          setMainImage(selectedVariant.imagePath, selectedVariant.imageAlt);
+        } else {
+          setMainImage(defaultProductImage.path, defaultProductImage.alt);
+        }
+
+        syncVariantSummary(selectedVariant);
+      }
+
+      document.querySelectorAll(".product-thumbnail").forEach(function (button) {
+        function updateFromThumbnail() {
+          setMainImage(button.dataset.imagePath, button.dataset.imageAlt);
+        }
+
+        button.addEventListener("mouseenter", updateFromThumbnail);
+        button.addEventListener("focus", updateFromThumbnail);
+        button.addEventListener("click", updateFromThumbnail);
+      });
+
+      if (variantSelect) {
+        variantSelect.addEventListener("change", syncFromSingleSelect);
+        syncFromSingleSelect();
+      }
+
+      if (variantColorSelect && variantSizeSelect) {
+        populateSizeOptions();
+        syncFromSplitSelectors();
+
+        variantColorSelect.addEventListener("change", function () {
+          populateSizeOptions();
+          syncFromSplitSelectors();
+        });
+
+        variantSizeSelect.addEventListener("change", syncFromSplitSelectors);
+      }
+    }
+
+    function initStoreCarousels() {
+      document.querySelectorAll(".store-card__stack").forEach(function (stack) {
+        var imageNodes;
+        var images;
+        var dotNodes;
+        var prevButton;
+        var nextButton;
+        var orderedImages;
+        var activeIndex;
+
+        if (stack.__auhStoreCarouselInitialized) return;
+
+        imageNodes = Array.from(stack.querySelectorAll(".store-card__stack-image"));
+        if (imageNodes.length <= 1) return;
+
+        images = imageNodes.map(function (node) {
+          return {
+            image_path: node.getAttribute("src") || "",
+            alt_text: node.getAttribute("alt") || ""
+          };
+        });
+        dotNodes = Array.from(stack.querySelectorAll(".store-card__stack-dot"));
+        prevButton = stack.querySelector(".store-card__stack-nav--prev");
+        nextButton = stack.querySelector(".store-card__stack-nav--next");
+        orderedImages = images.slice();
+        activeIndex = 0;
+
+        function getWrappedIndex(index) {
+          return (index + images.length) % images.length;
+        }
+
+        function renderStack() {
+          imageNodes.forEach(function (node, index) {
+            var imageData = orderedImages[index];
+
+            if (imageData) {
+              node.src = imageData.image_path;
+              node.alt = imageData.alt_text || node.alt;
+            }
+
+            node.classList.remove(
+              "store-card__stack-image--front",
+              "store-card__stack-image--middle",
+              "store-card__stack-image--back"
+            );
+
+            if (index === 0) {
+              node.classList.add("store-card__stack-image--front");
+            } else if (index === 1) {
+              node.classList.add("store-card__stack-image--middle");
+            } else if (index === 2) {
+              node.classList.add("store-card__stack-image--back");
+            }
+          });
+
+          dotNodes.forEach(function (dot, index) {
+            dot.classList.toggle("is-active", index === activeIndex);
+          });
+        }
+
+        function rotateStack(direction) {
+          if (direction < 0) {
+            orderedImages = [orderedImages[orderedImages.length - 1]].concat(orderedImages.slice(0, -1));
+            activeIndex = getWrappedIndex(activeIndex - 1);
+          } else {
+            orderedImages = orderedImages.slice(1).concat(orderedImages[0]);
+            activeIndex = getWrappedIndex(activeIndex + 1);
+          }
+
+          renderStack();
+        }
+
+        if (prevButton) {
+          prevButton.addEventListener("click", function (event) {
+            rotateStack(-1);
+
+            if (event.detail > 0) {
+              prevButton.blur();
+            }
+          });
+        }
+
+        if (nextButton) {
+          nextButton.addEventListener("click", function (event) {
+            rotateStack(1);
+
+            if (event.detail > 0) {
+              nextButton.blur();
+            }
+          });
+        }
+
+        stack.addEventListener("keydown", function (event) {
+          if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            if (prevButton) prevButton.click();
+          }
+
+          if (event.key === "ArrowRight") {
+            event.preventDefault();
+            if (nextButton) nextButton.click();
+          }
+        });
+
+        stack.__auhStoreCarouselInitialized = true;
+        renderStack();
+      });
+    }
+
+    function handleHomeLatestReleaseScroll(deltaY) {
+      var homePage = document.querySelector(".home-page");
+      var latestReleaseToggle = document.getElementById("latestReleaseToggle");
+      var isOpen;
+      var now = Date.now();
+
+      if (!homePage || !latestReleaseToggle) return false;
+      if (now < homeLatestReleaseScrollLockUntil) return true;
+      if (Math.abs(deltaY) < 3) return true;
+
+      isOpen = homePage.classList.contains("home-page--latest-open");
+
+      if (deltaY > 0 && !isOpen) {
+        setHomeLatestReleaseOpen(true);
+        homeLatestReleaseScrollLockUntil = now + 360;
+        return true;
+      }
+
+      if (deltaY < 0 && isOpen) {
+        setHomeLatestReleaseOpen(false);
+        homeLatestReleaseScrollLockUntil = now + 360;
+        return true;
+      }
+
+      return true;
+    }
+
+    function handleMusicDiscographyScroll(deltaY) {
+      var musicPage = document.querySelector(".music-page");
+      var discographyToggle = document.getElementById("discographyToggle");
+      var isOpen;
+      var now = Date.now();
+
+      if (!musicPage || !discographyToggle) return false;
+      if (now < homeLatestReleaseScrollLockUntil) return true;
+      if (Math.abs(deltaY) < 3) return true;
+
+      isOpen = musicPage.classList.contains("music-page--discography-open");
+
+      if (deltaY > 0 && !isOpen) {
+        setMusicDiscographyOpen(true);
+        homeLatestReleaseScrollLockUntil = now + 360;
+        return true;
+      }
+
+      if (deltaY < 0 && isOpen) {
+        setMusicDiscographyOpen(false);
+        homeLatestReleaseScrollLockUntil = now + 360;
+        return true;
+      }
+
+      return true;
+    }
+
+    function requestAndSwap(url, requestOptions, options) {
+      var requestId = ++activeRequestId;
+      var fetchOptions = Object.assign({
         credentials: "same-origin",
         headers: {
           "Accept": "text/html",
           "X-Requested-With": "auh-public-shell"
         }
-      }).then(function (response) {
-        if (!response.ok) {
-          throw new Error("Failed to load page");
-        }
+      }, requestOptions || {});
 
+      fetchOptions.headers = Object.assign({
+        "Accept": "text/html",
+        "X-Requested-With": "auh-public-shell"
+      }, fetchOptions.headers || {});
+
+      return fetch(url.toString(), fetchOptions).then(function (response) {
         return response.text().then(function (html) {
           return {
             html: html,
-            finalUrl: new URL(response.url, window.location.origin)
+            finalUrl: new URL(response.url, window.location.origin),
+            ok: response.ok,
+            contentType: response.headers.get("content-type") || ""
           };
         });
       }).then(function (result) {
+        if (!result.ok) {
+          throw new Error(result.html || "Failed to load page");
+        }
+
         if (requestId !== activeRequestId) return;
+
+        if (result.contentType.indexOf("text/html") === -1) {
+          throw new Error("Unexpected response");
+        }
 
         var nextDocument = new DOMParser().parseFromString(result.html, "text/html");
         applyDocumentState(nextDocument);
@@ -266,6 +683,10 @@
 
         scrollAfterNavigation(result.finalUrl, options && options.fromPopState);
       });
+    }
+
+    function fetchAndSwap(url, options) {
+      return requestAndSwap(url, null, options);
     }
 
     function fallbackNavigation(url) {
@@ -285,6 +706,52 @@
       }).catch(function () {
         fallbackNavigation(url);
         return false;
+      });
+    }
+
+    function submitPublicForm(form, submitter) {
+      var action = submitter && submitter.getAttribute("formaction") ? submitter.getAttribute("formaction") : form.getAttribute("action");
+      var method = submitter && submitter.getAttribute("formmethod") ? submitter.getAttribute("formmethod") : form.getAttribute("method");
+      var enctype = form.getAttribute("enctype") || form.enctype || "application/x-www-form-urlencoded";
+      var normalizedMethod = String(method || "GET").toUpperCase();
+      var url = new URL(action || window.location.href, window.location.origin);
+      var formData;
+
+      if (!isPublicShellPath(url)) {
+        form.submit();
+        return;
+      }
+
+      if (String(enctype).toLowerCase().indexOf("multipart/form-data") === 0) {
+        form.submit();
+        return;
+      }
+
+      try {
+        formData = submitter ? new FormData(form, submitter) : new FormData(form);
+      } catch (_error) {
+        formData = new FormData(form);
+
+        if (submitter && submitter.name) {
+          formData.append(submitter.name, submitter.value);
+        }
+      }
+
+      if (normalizedMethod === "GET") {
+        var searchParams = new URLSearchParams(formData);
+        url.search = searchParams.toString();
+        navigate(url);
+        return;
+      }
+
+      requestAndSwap(url, {
+        method: normalizedMethod,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        },
+        body: new URLSearchParams(formData).toString()
+      }).catch(function (error) {
+        window.alert(error && error.message ? error.message : "Request failed");
       });
     }
 
@@ -350,6 +817,26 @@
         return;
       }
 
+      var latestReleaseToggle = event.target.closest("#latestReleaseToggle");
+      if (latestReleaseToggle) {
+        var homePage = document.querySelector(".home-page");
+
+        if (!homePage) return;
+
+        setHomeLatestReleaseOpen(!homePage.classList.contains("home-page--latest-open"));
+        return;
+      }
+
+      var discographyToggle = event.target.closest("#discographyToggle");
+      if (discographyToggle) {
+        var musicPage = document.querySelector(".music-page");
+
+        if (!musicPage) return;
+
+        setMusicDiscographyOpen(!musicPage.classList.contains("music-page--discography-open"));
+        return;
+      }
+
       var link = event.target.closest("a[href]");
       if (!link) return;
       if (event.defaultPrevented) return;
@@ -372,6 +859,17 @@
       navigate(url);
     });
 
+    document.addEventListener("submit", function (event) {
+      var form = event.target;
+
+      if (!form || !form.matches("form")) return;
+      if (event.defaultPrevented) return;
+      if (document.body.getAttribute("data-shell-page") !== "public") return;
+
+      event.preventDefault();
+      submitPublicForm(form, event.submitter || null);
+    });
+
     document.addEventListener("input", function (event) {
       var volumeSlider = event.target.closest("[data-audio-volume]");
       var nextVolume;
@@ -391,6 +889,21 @@
       writeBool(STORAGE_KEYS.started, true);
       syncAudioUi();
     });
+
+    window.addEventListener("wheel", function (event) {
+      if (event.defaultPrevented) return;
+      if (event.ctrlKey) return;
+      if (!document.querySelector(".home-page") && !document.querySelector(".music-page")) return;
+
+      if (handleHomeLatestReleaseScroll(event.deltaY)) {
+        event.preventDefault();
+        return;
+      }
+
+      if (handleMusicDiscographyScroll(event.deltaY)) {
+        event.preventDefault();
+      }
+    }, { passive: false });
 
     audio.addEventListener("play", function () {
       writeBool(STORAGE_KEYS.started, true);
@@ -424,10 +937,26 @@
     window.AUHPublicShell = {
       navigate: navigate,
       startAudioFromGesture: startAudioFromGesture,
-      syncAudioUi: syncAudioUi
+      syncAudioUi: syncAudioUi,
+      toggleHomeLatestRelease: function () {
+        var homePage = document.querySelector(".home-page");
+
+        if (!homePage) return false;
+        return setHomeLatestReleaseOpen(!homePage.classList.contains("home-page--latest-open"));
+      },
+      toggleMusicDiscography: function () {
+        var musicPage = document.querySelector(".music-page");
+
+        if (!musicPage) return false;
+        return setMusicDiscographyOpen(!musicPage.classList.contains("music-page--discography-open"));
+      }
     };
 
     syncAudioUi();
+    syncHomeLatestReleaseUi();
+    syncMusicDiscographyUi();
+    initStoreCarousels();
+    initProductPageUi();
     applyStoredAudioState();
     window.history.replaceState({ shell: true }, "", window.location.href);
   })();
