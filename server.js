@@ -44,6 +44,62 @@ app.set("views", path.join(__dirname, "src", "views"));
 let ticketDetailsTableExistsPromise = null;
 let productImagesTableExistsPromise = null;
 const PRODUCT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const PUBLIC_INFO_PAGES = {
+  contact: {
+    title: "Contact",
+    panelHeading: "Get in touch",
+    paragraphs: [
+      "Got an issue with your order? Want to tell us what a song means to you? Maybe you've got some cool photos or videos from a show?",
+      "We'd love to hear from you.",
+      "Whether it's a merch mix-up, a shipping question, or just something you want to share - drop us a line. We read all of these and we'll get back to you as soon as we can.",
+      "Reach out to the email below.",
+    ],
+    cta: {
+      href: "mailto:updates@allunderhvn.com",
+      label: "updates@allunderhvn.com",
+      external: true,
+    },
+  },
+  shipping: {
+    title: "Shipping",
+    panelHeading: "Shipping Policy",
+    paragraphs: [
+      "We currently offer domestic shipping through our online store.",
+      "International orders are available too - just not through Square.",
+      "If you're outside the U.S. and see something you want, email us directly and we'll help you place the order. Square doesn't let us set fair international shipping prices without upgrading our account, so for now, we're just using it as a catalog for international fans.",
+    ],
+    sectionHeading: "Shipping Info:",
+    bullets: [
+      "Orders ship within 1-2 weeks after purchase.",
+      "You'll receive a tracking number via email as soon as your order is on the way.",
+      "We ship via USPS or UPS, depending on the size and weight of your order.",
+    ],
+    closingText: "If you have any issues with delivery, don't hesitate to contact us.",
+    cta: {
+      href: "/contact",
+      label: "Click here",
+    },
+  },
+  returns: {
+    title: "Returns",
+    panelHeading: "Return Policy",
+    paragraphs: [
+      "Hey - we want you to be stoked about everything you get from all under heaven. If we messed up your order (wrong item, wrong size, etc.), hit us up and we'll fix it.",
+    ],
+    sectionHeading: "Return Guidelines",
+    bullets: [
+      "We only do returns if we made a mistake - like sending the wrong stuff.",
+      "If your package got damaged during shipping, let us know. Everything we ship is insured through UPS up to a certain amount, so we'll help sort it out with them.",
+      "Items need to be unused and in the same condition you got them.",
+      "Sale and limited edition stuff is final sale, unless it showed up totally wrong.",
+    ],
+    closingText: "If something's off, please reach out with your order number and what happened. We'll take care of you.",
+    cta: {
+      href: "/contact",
+      label: "Click here to contact us",
+    },
+  },
+};
 
 const productImageStorage = multer.diskStorage({
   destination: (_req, _file, cb) => {
@@ -615,6 +671,13 @@ app.get("/music", (req, res) => {
 
 app.get("/newsletter", (req, res) => {
   res.render("pages/newsletter", { title: "Newsletter", status: null });
+});
+
+app.get(["/contact", "/shipping", "/returns"], (req, res) => {
+  const slug = req.path.slice(1);
+  const infoPage = PUBLIC_INFO_PAGES[slug];
+
+  res.render("pages/info", { title: infoPage.title, infoPage });
 });
 
 app.post("/newsletter", async (req, res) => {

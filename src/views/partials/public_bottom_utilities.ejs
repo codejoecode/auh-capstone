@@ -1,0 +1,300 @@
+<style id="public-bottom-utility-styles">
+  @font-face {
+    font-family: "VCR OSD Mono";
+    src: url("/fonts/VCR_OSD_MONO_1.001.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  .public-bottom-utility {
+    --utility-edge: clamp(14px, 3vw, 28px);
+    --utility-bottom: clamp(18px, 4vh, 34px);
+    --utility-main-size: 58px;
+    --utility-child-size: 44px;
+    --utility-line: rgba(244, 241, 236, 0.48);
+    --utility-line-bright: rgba(255, 255, 255, 0.9);
+    --utility-text: rgba(244, 241, 236, 0.72);
+    --utility-text-bright: #fff;
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    pointer-events: none;
+  }
+
+  .public-bottom-utility__group {
+    position: fixed;
+    bottom: var(--utility-bottom);
+    display: grid;
+    width: var(--utility-main-size);
+    height: var(--utility-main-size);
+    pointer-events: auto;
+  }
+
+  .public-bottom-utility__group--socials {
+    left: var(--utility-edge);
+  }
+
+  .public-bottom-utility__group--info {
+    right: var(--utility-edge);
+  }
+
+  .public-bottom-utility__trigger,
+  .public-bottom-utility__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--utility-line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--utility-text);
+    font-family: "VCR OSD Mono", Arial, sans-serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-decoration: none;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
+    text-transform: uppercase;
+    cursor: pointer;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0));
+    transition:
+      border-color 180ms ease,
+      color 180ms ease,
+      filter 180ms ease,
+      opacity 180ms ease,
+      transform 220ms ease;
+  }
+
+  .public-bottom-utility__trigger {
+    position: relative;
+    z-index: 2;
+    width: var(--utility-main-size);
+    height: var(--utility-main-size);
+    padding: 0;
+    opacity: 0.68;
+  }
+
+  .public-bottom-utility__trigger:hover,
+  .public-bottom-utility__trigger:focus-visible,
+  .public-bottom-utility__group:focus-within .public-bottom-utility__trigger,
+  .public-bottom-utility__group.is-open .public-bottom-utility__trigger {
+    border-color: var(--utility-line-bright);
+    color: var(--utility-text-bright);
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.28));
+    opacity: 1;
+  }
+
+  .public-bottom-utility__trigger:focus-visible,
+  .public-bottom-utility__link:focus-visible {
+    outline: 1px solid rgba(255, 255, 255, 0.9);
+    outline-offset: 4px;
+  }
+
+  .public-bottom-utility__items {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+  }
+
+  .public-bottom-utility__item {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--utility-child-size);
+    height: var(--utility-child-size);
+    transform: translate(-50%, -50%);
+  }
+
+  .public-bottom-utility__link {
+    width: var(--utility-child-size);
+    height: var(--utility-child-size);
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(var(--closed-x, 0), var(--closed-y, 0)) scale(0.82);
+  }
+
+  .public-bottom-utility__link:hover,
+  .public-bottom-utility__link:focus-visible {
+    border-color: var(--utility-line-bright);
+    color: var(--utility-text-bright);
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.28));
+  }
+
+  .public-bottom-utility__group.is-open .public-bottom-utility__link {
+    opacity: 0.86;
+    pointer-events: auto;
+    transform: translate(var(--fan-x), var(--fan-y)) scale(1);
+  }
+
+  .public-bottom-utility__group.is-open .public-bottom-utility__items {
+    pointer-events: auto;
+  }
+
+  .public-bottom-utility__group--socials .public-bottom-utility__item:nth-child(1) {
+    --fan-x: 0px;
+    --fan-y: -66px;
+  }
+
+  .public-bottom-utility__group--socials .public-bottom-utility__item:nth-child(2) {
+    --fan-x: 48px;
+    --fan-y: -48px;
+  }
+
+  .public-bottom-utility__group--socials .public-bottom-utility__item:nth-child(3) {
+    --fan-x: 76px;
+    --fan-y: 0px;
+  }
+
+  .public-bottom-utility__group--info .public-bottom-utility__item:nth-child(1) {
+    --fan-x: -8px;
+    --fan-y: -78px;
+  }
+
+  .public-bottom-utility__group--info .public-bottom-utility__item:nth-child(2) {
+    --fan-x: -88px;
+    --fan-y: -54px;
+  }
+
+  .public-bottom-utility__group--info .public-bottom-utility__item:nth-child(3) {
+    --fan-x: -134px;
+    --fan-y: 4px;
+  }
+
+  .public-bottom-utility__icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .public-bottom-utility__link--text {
+    width: auto;
+    min-width: 76px;
+    padding: 0 13px;
+    font-size: 0.52rem;
+  }
+
+  .intro-template .public-bottom-utility {
+    display: none;
+  }
+
+  @media (max-width: 700px) {
+    .public-bottom-utility {
+      --utility-edge: 12px;
+      --utility-bottom: 14px;
+      --utility-main-size: 52px;
+      --utility-child-size: 42px;
+    }
+
+    .public-bottom-utility__trigger {
+      font-size: 0.5rem;
+      letter-spacing: 0.12em;
+    }
+
+    .public-bottom-utility__link--text {
+      min-width: 68px;
+      padding: 0 10px;
+      font-size: 0.48rem;
+      letter-spacing: 0.12em;
+    }
+
+    .public-bottom-utility__group--socials .public-bottom-utility__item:nth-child(1),
+    .public-bottom-utility__group--info .public-bottom-utility__item:nth-child(1) {
+      --fan-x: 0px;
+      --fan-y: -56px;
+    }
+
+    .public-bottom-utility__group--socials .public-bottom-utility__item:nth-child(2),
+    .public-bottom-utility__group--info .public-bottom-utility__item:nth-child(2) {
+      --fan-x: 0px;
+      --fan-y: -106px;
+    }
+
+    .public-bottom-utility__group--socials .public-bottom-utility__item:nth-child(3),
+    .public-bottom-utility__group--info .public-bottom-utility__item:nth-child(3) {
+      --fan-x: 0px;
+      --fan-y: -156px;
+    }
+
+  }
+</style>
+
+<aside class="public-bottom-utility" data-public-bottom-utility aria-label="Site utility links">
+  <div class="public-bottom-utility__group public-bottom-utility__group--socials" data-utility-group>
+    <button
+      type="button"
+      class="public-bottom-utility__trigger"
+      data-utility-trigger
+      aria-label="Toggle social links"
+      aria-expanded="false"
+    >
+      Socials
+    </button>
+
+    <ul class="public-bottom-utility__items" aria-label="Social links">
+      <li class="public-bottom-utility__item">
+        <a
+          class="public-bottom-utility__link"
+          href="https://www.instagram.com/allunderhvn/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          data-utility-child
+        >
+          <img class="public-bottom-utility__icon" src="/images/social-instagram.png" alt="" aria-hidden="true" />
+        </a>
+      </li>
+      <li class="public-bottom-utility__item">
+        <a
+          class="public-bottom-utility__link"
+          href="https://www.facebook.com/people/All-under-heaven/100064778059647/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook"
+          data-utility-child
+        >
+          <img class="public-bottom-utility__icon" src="/images/social-facebook.png" alt="" aria-hidden="true" />
+        </a>
+      </li>
+      <li class="public-bottom-utility__item">
+        <a
+          class="public-bottom-utility__link"
+          href="https://x.com/allunderhvn"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="X"
+          data-utility-child
+        >
+          <img class="public-bottom-utility__icon" src="/images/social-x.png" alt="" aria-hidden="true" />
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="public-bottom-utility__group public-bottom-utility__group--info" data-utility-group>
+    <button
+      type="button"
+      class="public-bottom-utility__trigger"
+      data-utility-trigger
+      aria-label="Toggle information links"
+      aria-expanded="false"
+    >
+      Info
+    </button>
+
+    <ul class="public-bottom-utility__items" aria-label="Information links">
+      <li class="public-bottom-utility__item">
+        <a class="public-bottom-utility__link public-bottom-utility__link--text" href="/contact" data-utility-child>Contact</a>
+      </li>
+      <li class="public-bottom-utility__item">
+        <a class="public-bottom-utility__link public-bottom-utility__link--text" href="/shipping" data-utility-child>Shipping</a>
+      </li>
+      <li class="public-bottom-utility__item">
+        <a class="public-bottom-utility__link public-bottom-utility__link--text" href="/returns" data-utility-child>Returns</a>
+      </li>
+    </ul>
+  </div>
+</aside>

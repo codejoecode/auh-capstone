@@ -1,3 +1,5 @@
+<%- include("./public_bottom_utilities") %>
+
 <div id="site-persistent-audio-root" hidden aria-hidden="true">
   <audio id="site-global-audio" preload="auto" loop>
     <source src="<%= audioSource %>" type="audio/mpeg" />
@@ -20,6 +22,7 @@
     var audio = document.getElementById("site-global-audio");
     var activeRequestId = 0;
     var homeLatestReleaseScrollLockUntil = 0;
+    var bottomUtilityCloseTimer = null;
 
     if (!audio) return;
 
@@ -59,6 +62,84 @@
 
       menu.setAttribute("hidden", "");
       toggle.setAttribute("aria-expanded", "false");
+    }
+
+    function getUtilityGroups() {
+      return Array.from(document.querySelectorAll("[data-utility-group]"));
+    }
+
+    function syncBottomUtilityUi() {
+      getUtilityGroups().forEach(function (group) {
+        var isOpen = group.classList.contains("is-open");
+        var trigger = group.querySelector("[data-utility-trigger]");
+        var children = group.querySelectorAll("[data-utility-child]");
+
+        if (trigger) {
+          trigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        }
+
+        children.forEach(function (child) {
+          child.tabIndex = isOpen ? 0 : -1;
+        });
+      });
+    }
+
+    function clearBottomUtilityCloseTimer() {
+      if (!bottomUtilityCloseTimer) return;
+
+      window.clearTimeout(bottomUtilityCloseTimer);
+      bottomUtilityCloseTimer = null;
+    }
+
+    function openBottomUtility(group, options) {
+      if (!group) return;
+
+      clearBottomUtilityCloseTimer();
+      closeBottomUtilities(group);
+      group.classList.add("is-open");
+
+      if (options && options.pinned) {
+        group.setAttribute("data-utility-pinned", "true");
+      }
+
+      syncBottomUtilityUi();
+    }
+
+    function closeBottomUtilities(exceptGroup) {
+      clearBottomUtilityCloseTimer();
+
+      getUtilityGroups().forEach(function (group) {
+        if (exceptGroup && group === exceptGroup) return;
+        group.classList.remove("is-open");
+        group.removeAttribute("data-utility-pinned");
+      });
+
+      syncBottomUtilityUi();
+    }
+
+    function scheduleBottomUtilityClose(group) {
+      clearBottomUtilityCloseTimer();
+
+      if (!group || group.getAttribute("data-utility-pinned") === "true") return;
+
+      bottomUtilityCloseTimer = window.setTimeout(function () {
+        if (group.matches(":hover") || group.contains(document.activeElement)) return;
+        group.classList.remove("is-open");
+        syncBottomUtilityUi();
+      }, 260);
+    }
+
+    function toggleBottomUtility(group) {
+      if (!group) return;
+
+      if (group.classList.contains("is-open") && group.getAttribute("data-utility-pinned") === "true") {
+        group.classList.remove("is-open");
+        group.removeAttribute("data-utility-pinned");
+        syncBottomUtilityUi();
+        return;
+      }
+
+      openBottomUtility(group, { pinned: true });
     }
 
     function syncAudioUi() {
@@ -217,6 +298,7 @@
       syncAudioUi();
       syncHomeLatestReleaseUi();
       syncMusicDiscographyUi();
+      closeBottomUtilities();
       initStoreCarousels();
       initProductPageUi();
     }
@@ -772,6 +854,17 @@
         return;
       }
 
+      var utilityTrigger = event.target.closest("[data-utility-trigger]");
+      if (utilityTrigger) {
+        event.preventDefault();
+        toggleBottomUtility(utilityTrigger.closest("[data-utility-group]"));
+        return;
+      }
+
+      if (!event.target.closest("[data-public-bottom-utility]")) {
+        closeBottomUtilities();
+      }
+
       var playButton = event.target.closest("[data-audio-play]");
       if (playButton) {
         writeBool(STORAGE_KEYS.started, true);
@@ -870,6 +963,48 @@
       submitPublicForm(form, event.submitter || null);
     });
 
+    document.addEventListener("mouseover", function (event) {
+      var utilityGroup = event.target.closest("[data-utility-group]");
+
+      if (!utilityGroup) return;
+
+      openBottomUtility(utilityGroup);
+    });
+
+    document.addEventListener("mouseout", function (event) {
+      var utilityGroup = event.target.closest("[data-utility-group]");
+      var nextTarget = event.relatedTarget;
+
+      if (!utilityGroup) return;
+      if (nextTarget && utilityGroup.contains(nextTarget)) return;
+
+      scheduleBottomUtilityClose(utilityGroup);
+    });
+
+    document.addEventListener("focusin", function (event) {
+      var utilityGroup = event.target.closest("[data-utility-group]");
+
+      if (!utilityGroup) return;
+
+      openBottomUtility(utilityGroup);
+    });
+
+    document.addEventListener("focusout", function (event) {
+      var utilityGroup = event.target.closest("[data-utility-group]");
+      var nextTarget = event.relatedTarget;
+
+      if (!utilityGroup) return;
+      if (nextTarget && utilityGroup.contains(nextTarget)) return;
+
+      scheduleBottomUtilityClose(utilityGroup);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeBottomUtilities();
+      }
+    });
+
     document.addEventListener("input", function (event) {
       var volumeSlider = event.target.closest("[data-audio-volume]");
       var nextVolume;
@@ -953,6 +1088,7 @@
     };
 
     syncAudioUi();
+    syncBottomUtilityUi();
     syncHomeLatestReleaseUi();
     syncMusicDiscographyUi();
     initStoreCarousels();

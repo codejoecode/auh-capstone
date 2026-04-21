@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  <style id="site-page-styles">
+<%- include("../partials/public_page_styles") %>
+<%- include("../partials/immersive_hero_styles") %>
+
+    .info-page {
+      position: relative;
+      background: #050505;
+      height: 100vh;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .info-template {
+      overflow: hidden;
+    }
+
+    .info-experience {
+      position: relative;
+      height: 100vh;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .info-experience__backdrop {
+      position: absolute;
+      inset: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .info-experience__backdrop::after {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 38%, rgba(0, 0, 0, 0.36));
+      content: "";
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .info-experience__content {
+      position: relative;
+      z-index: 2;
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 136px 0 96px;
+    }
+
+    .info-intro {
+      width: min(760px, 100%);
+      margin-bottom: 24px;
+    }
+
+    .info-intro__title {
+      max-width: 9em;
+      margin: 0;
+      font-size: clamp(2.5rem, 8vw, 6.2rem);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .info-panel {
+      width: min(760px, 100%);
+      max-height: calc(100vh - 304px);
+      overflow: hidden;
+      padding: 22px 24px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.03);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+      color: #f4f1ec;
+    }
+
+    .info-heading {
+      margin: 0 0 16px;
+      color: rgba(244, 241, 236, 0.86);
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .info-subheading {
+      margin: 18px 0 12px;
+      color: rgba(244, 241, 236, 0.86);
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .info-panel__copy,
+    .info-list {
+      margin: 0;
+      color: rgba(244, 241, 236, 0.78);
+      font-size: clamp(0.68rem, 1.05vw, 0.88rem);
+      line-height: 1.58;
+    }
+
+    .info-panel__copy + .info-panel__copy {
+      margin-top: 10px;
+    }
+
+    .info-list {
+      display: grid;
+      gap: 10px;
+      padding-left: 20px;
+    }
+
+    .info-list + .info-panel__copy {
+      margin-top: 14px;
+    }
+
+    .info-panel__link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      margin-top: 16px;
+      padding: 8px 13px;
+      border: 1px solid rgba(244, 241, 236, 0.5);
+      border-radius: 4px;
+      color: #f4f1ec;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: border-color 180ms ease, color 180ms ease, filter 180ms ease;
+    }
+
+    .info-panel__link:hover,
+    .info-panel__link:focus-visible {
+      border-color: rgba(255, 255, 255, 0.9);
+      color: #fff;
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.22));
+    }
+
+    .info-panel__link--email {
+      display: inline-block;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      color: #fff;
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      line-height: 1.25;
+      text-transform: none;
+      filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.18));
+    }
+
+    @media (max-width: 820px) {
+      .info-experience__content {
+        width: min(calc(100% - 28px), 1180px);
+        padding-top: 122px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .info-experience__content {
+        padding-top: 108px;
+      }
+
+      .info-intro {
+        margin-bottom: 18px;
+      }
+
+      .info-intro__title {
+        max-width: 100%;
+        font-size: clamp(2.2rem, 14vw, 4rem);
+      }
+
+      .info-panel {
+        max-height: calc(100vh - 258px);
+        padding: 18px;
+      }
+
+      .info-list {
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body class="public-page-template info-template" data-shell-page="public">
+  <%- include("../partials/header") %>
+
+  <main id="site-shell-content" class="info-page">
+    <section class="info-experience" aria-labelledby="info-title">
+      <div class="info-experience__backdrop immersive-hero" aria-hidden="true">
+        <video class="immersive-hero__video" autoplay muted loop playsinline>
+          <source src="/videos/auhVHS3.mp4" type="video/mp4" />
+        </video>
+        <div class="immersive-hero__shade"></div>
+        <div class="immersive-hero__noise"></div>
+      </div>
+
+      <div class="info-experience__content">
+        <section class="info-intro">
+          <h1 id="info-title" class="info-intro__title"><%= infoPage.title %></h1>
+        </section>
+
+        <article class="info-panel" id="page-content" aria-labelledby="info-heading">
+          <h2 id="info-heading" class="info-heading"><%= infoPage.panelHeading %></h2>
+          <% infoPage.paragraphs.forEach((paragraph) => { %>
+            <p class="info-panel__copy"><%= paragraph %></p>
+          <% }) %>
+          <% if (infoPage.sectionHeading) { %>
+            <h3 class="info-subheading"><%= infoPage.sectionHeading %></h3>
+          <% } %>
+          <% if (infoPage.bullets && infoPage.bullets.length > 0) { %>
+            <ul class="info-list">
+              <% infoPage.bullets.forEach((item) => { %>
+                <li><%= item %></li>
+              <% }) %>
+            </ul>
+          <% } %>
+          <% if (infoPage.closingText) { %>
+            <p class="info-panel__copy"><%= infoPage.closingText %></p>
+          <% } %>
+          <% if (infoPage.cta) { %>
+            <a
+              class="info-panel__link <%= infoPage.cta.href.indexOf('mailto:') === 0 ? 'info-panel__link--email' : '' %>"
+              href="<%= infoPage.cta.href %>"
+              <% if (infoPage.cta.external) { %>rel="noopener noreferrer"<% } %>
+            >
+              <%= infoPage.cta.label %>
+            </a>
+          <% } %>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <%- include("../partials/public_shell_bootstrap") %>
+</body>
+</html>

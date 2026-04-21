@@ -118,20 +118,20 @@
       gap: 10px;
       padding: 12px;
       border-top: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.03);
+      background: transparent;
     }
 
     .product-thumbnail {
       padding: 0;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: #000;
+      border: 0;
+      background: transparent;
       cursor: pointer;
     }
 
     .product-thumbnail img {
       width: 100%;
       aspect-ratio: 1 / 1;
-      object-fit: cover;
+      object-fit: contain;
       display: block;
     }
 
@@ -544,28 +544,28 @@
         </section>
       </div>
     </section>
+    <% if (product.type === "merch" && variants.length > 0) { %>
+      <script id="productVariantConfig" type="application/json">
+        <%- JSON.stringify({
+          productName: product.name,
+          defaultProductImage: {
+            path: merchDefaultImage ? merchDefaultImage.image_path : "",
+            alt: merchDefaultImage ? (merchDefaultImage.alt_text || product.name) : product.name,
+          },
+          splitVariantOptions: merchSplitVariantOptions.map((option) => ({
+            id: option.id,
+            color: option.color,
+            size: option.size,
+            name: option.name,
+            price: option.price,
+            stock: option.stock,
+            imagePath: option.image ? option.image.image_path : (merchDefaultImage ? merchDefaultImage.image_path : ""),
+            imageAlt: option.image ? (option.image.alt_text || product.name) : (merchDefaultImage ? (merchDefaultImage.alt_text || product.name) : product.name),
+          })),
+        }) %>
+      </script>
+    <% } %>
   </main>
-  <% if (product.type === "merch" && variants.length > 0) { %>
-    <script id="productVariantConfig" type="application/json">
-      <%- JSON.stringify({
-        productName: product.name,
-        defaultProductImage: {
-          path: merchDefaultImage ? merchDefaultImage.image_path : "",
-          alt: merchDefaultImage ? (merchDefaultImage.alt_text || product.name) : product.name,
-        },
-        splitVariantOptions: merchSplitVariantOptions.map((option) => ({
-          id: option.id,
-          color: option.color,
-          size: option.size,
-          name: option.name,
-          price: option.price,
-          stock: option.stock,
-          imagePath: option.image ? option.image.image_path : (merchDefaultImage ? merchDefaultImage.image_path : ""),
-          imageAlt: option.image ? (option.image.alt_text || product.name) : (merchDefaultImage ? (merchDefaultImage.alt_text || product.name) : product.name),
-        })),
-      }) %>
-    </script>
-  <% } %>
   <%- include("../partials/public_shell_bootstrap") %>
 </body>
 </html>
