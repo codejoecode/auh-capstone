@@ -89,6 +89,11 @@
       align-items: start;
     }
 
+    .product-layout--ticket {
+      grid-template-columns: minmax(0, 760px);
+      max-width: 760px;
+    }
+
     .product-media,
     .product-panel {
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -175,6 +180,35 @@
     .product-detail {
       margin: 0 0 12px;
       color: rgba(244, 241, 236, 0.82);
+    }
+
+    .product-ticket-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin: 0 0 24px;
+    }
+
+    .product-ticket-fact {
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .product-ticket-fact__label {
+      display: block;
+      margin-bottom: 8px;
+      color: rgba(244, 241, 236, 0.58);
+      font-size: 0.64rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .product-ticket-fact__value {
+      margin: 0;
+      color: rgba(244, 241, 236, 0.86);
+      line-height: 1.5;
     }
 
     .product-note {
@@ -299,6 +333,14 @@
       .product-layout {
         grid-template-columns: 1fr;
       }
+
+      .product-layout--ticket {
+        max-width: none;
+      }
+
+      .product-ticket-facts {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 640px) {
@@ -334,6 +376,12 @@
   <% const merchSplitVariantOptions = []; %>
   <% const merchSupportsSplitSelectors = product.type === "merch" && variants.length > 0 && variants.every((variant) => variant.name.includes(" / ")); %>
   <% const merchVariantImageMap = new Map(); %>
+  <% const ticketEventDate = product.event_date ? new Date(String(product.event_date).replace(" ", "T")) : null; %>
+  <% const ticketDateLabel = ticketEventDate && !Number.isNaN(ticketEventDate.getTime())
+    ? ticketEventDate.toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })
+    : product.event_date; %>
+  <% const ticketLocationLabel = [product.venue_city, product.venue_state].filter(Boolean).join(", ") || "TBA"; %>
+  <% const ticketVenueLabel = product.venue_name || "TBA"; %>
   <% if (merchImages && merchImages.variantImages) { %>
     <% merchImages.variantImages.forEach((image) => { %>
       <% if (!merchVariantImageMap.has(Number(image.variant_id))) { %>
@@ -377,7 +425,7 @@
           <% } %>
         </section>
 
-        <section id="page-content" class="product-layout" aria-labelledby="product-panel-heading">
+        <section id="page-content" class="product-layout <%= product.type === 'ticket' ? 'product-layout--ticket' : '' %>" aria-labelledby="product-panel-heading">
           <% if (product.type === "merch" && merchDefaultImage) { %>
             <div class="product-media">
               <img
@@ -401,30 +449,34 @@
                 </div>
               <% } %>
             </div>
-          <% } else if (product.image_url) { %>
+          <% } else if (product.type !== "ticket" && product.image_url) { %>
             <div class="product-media">
               <img src="<%= product.image_url %>" alt="<%= product.name %>">
             </div>
           <% } %>
 
-          <div class="product-panel">
+          <div class="product-panel <%= product.type === 'ticket' ? 'product-panel--ticket' : '' %>">
             <h2 id="product-panel-heading" class="product-section-title">
               <%= product.type === "ticket" ? "Ticket Options" : "Available Options" %>
             </h2>
 
             <% if (product.type === "ticket") { %>
-              <% if (product.event_date) { %>
-                <p class="product-detail"><strong>Date:</strong> <%= product.event_date %></p>
-              <% } %>
+              <div class="product-ticket-facts">
+                <div class="product-ticket-fact">
+                  <span class="product-ticket-fact__label">Date</span>
+                  <p class="product-ticket-fact__value"><%= ticketDateLabel || "TBA" %></p>
+                </div>
 
-              <% if (product.venue_name || product.venue_city || product.venue_state) { %>
-                <p class="product-detail">
-                  <strong>Venue:</strong>
-                  <%= product.venue_name || "" %>
-                  <% if (product.venue_name && (product.venue_city || product.venue_state)) { %>, <% } %>
-                  <%= [product.venue_city, product.venue_state].filter(Boolean).join(", ") %>
-                </p>
-              <% } %>
+                <div class="product-ticket-fact">
+                  <span class="product-ticket-fact__label">Venue</span>
+                  <p class="product-ticket-fact__value"><%= ticketVenueLabel %></p>
+                </div>
+
+                <div class="product-ticket-fact">
+                  <span class="product-ticket-fact__label">Location</span>
+                  <p class="product-ticket-fact__value"><%= ticketLocationLabel %></p>
+                </div>
+              </div>
             <% } %>
 
             <% if (product.type === "ticket") { %>
@@ -444,6 +496,24 @@
                 <p class="product-note"><em>Tickets are not on sale yet.</em></p>
               <% } else if (variants.length === 0) { %>
                 <p class="product-note"><em>Tickets are not listed yet.</em></p>
+              <% } else if (variants.length === 1) { %>
+                <% const ticketVariant = variants[0]; %>
+                <form action="/cart/add" method="POST" class="product-merch-form">
+                  <input type="hidden" name="variantId" value="<%= ticketVariant.id %>">
+
+                  <div class="product-merch-summary">
+                    <h3 class="product-merch-summary__name"><%= ticketVariant.name %></h3>
+                    <p class="product-merch-summary__meta">
+                      $<%= (ticketVariant.price_cents / 100).toFixed(2) %> - Stock: <%= ticketVariant.stock_qty %>
+                    </p>
+                  </div>
+
+                  <div class="product-merch-actions">
+                    <input type="hidden" name="qty" value="1">
+                    <button type="submit" <%= ticketVariant.stock_qty > 0 ? "" : "disabled" %>>Add to Cart</button>
+                    <p class="product-note"><%= ticketVariant.stock_qty > 0 ? "" : "Sold out" %></p>
+                  </div>
+                </form>
               <% } else { %>
                 <ul class="product-variant-list">
                   <% variants.forEach(v => { %>
@@ -459,7 +529,7 @@
                         <form action="/cart/add" method="POST">
                           <input type="hidden" name="variantId" value="<%= v.id %>">
                           <input type="hidden" name="qty" value="1">
-                          <button type="submit">Add Ticket to Cart</button>
+                          <button type="submit">Add to Cart</button>
                         </form>
                       <% } else { %>
                         <p class="product-note"><em>Sold out</em></p>
