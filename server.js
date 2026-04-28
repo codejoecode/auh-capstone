@@ -330,7 +330,6 @@ async function loadStoreMerchItems() {
   if (!(await hasProductImagesTable())) {
     return merch.map((item) => ({
       ...item,
-      display_image_url: item.image_url || "",
     }));
   }
 
@@ -359,7 +358,6 @@ async function loadStoreMerchItems() {
 
   return merch.map((item) => ({
     ...item,
-    display_image_url: imageMap.get(item.id)?.[0]?.image_path || item.image_url || "",
     stacked_images:
       imageMap.get(item.id)?.slice(0, 3) ||
       (item.image_url
@@ -1280,7 +1278,6 @@ app.post("/admin/products/new", requireAdmin, async (req, res) => {
 app.post("/admin/products/:id/edit", requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
   const formData = parseAdminProductInput(req.body);
-  const pricingData = parsePriceAndStock(req.body);
   const ticketDetailsEnabled = await hasTicketDetailsTable();
   formData.id = id;
 
@@ -1288,7 +1285,7 @@ app.post("/admin/products/:id/edit", requireAdmin, async (req, res) => {
     return res.status(400).send("Invalid product id");
   }
 
-  const validationError = validateAdminProductInput(formData, pricingData, {
+  const validationError = validateAdminProductInput(formData, {
     ticketDetailsEnabled,
   });
 
