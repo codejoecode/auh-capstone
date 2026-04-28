@@ -341,11 +341,30 @@
       }
 
       .product-layout--ticket {
-        max-width: 620px;
+        grid-template-columns: minmax(0, 760px);
+        max-width: 760px;
       }
 
       .product-panel {
         padding: 18px;
+      }
+
+      .product-layout--ticket .product-panel {
+        padding: 22px;
+      }
+
+      .product-layout--ticket .product-ticket-facts {
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+
+      .product-layout--ticket .product-ticket-fact {
+        padding: 14px;
+      }
+
+      .product-layout--ticket .product-variant,
+      .product-layout--ticket .product-merch-summary {
+        padding: 16px;
       }
     }
 
@@ -365,6 +384,23 @@
 
       .product-description {
         font-size: 0.92rem;
+      }
+
+      .product-layout--ticket {
+        grid-template-columns: minmax(0, 720px);
+        max-width: 720px;
+      }
+
+      .product-layout--ticket .product-title {
+        max-width: 12em;
+      }
+
+      .product-layout--ticket .product-ticket-facts {
+        gap: 12px;
+      }
+
+      .product-layout--ticket .product-ticket-fact__value {
+        font-size: 0.94rem;
       }
     }
 
