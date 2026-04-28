@@ -9,7 +9,7 @@
 
     .music-page {
       --music-trigger-height: 26px;
-      --discography-art-size: clamp(200px, 16vw, 300px);
+      --discography-art-size: clamp(176px, 14vw, 252px);
       background: #050505;
       height: 100vh;
       overflow: hidden;
@@ -19,7 +19,7 @@
       position: relative;
       min-height: 100vh;
       height: 100vh;
-      padding: 118px 20px 20px;
+      padding: 102px 18px 16px;
       overflow: hidden;
       isolation: isolate;
       background: #000;
@@ -96,11 +96,11 @@
       position: relative;
       z-index: 2;
       display: grid;
-      grid-template-columns: minmax(220px, 430px) minmax(0, 1fr);
-      gap: clamp(24px, 5vw, 72px);
+      grid-template-columns: minmax(188px, 340px) minmax(0, 1fr);
+      gap: clamp(18px, 3.8vw, 44px);
       align-items: center;
-      width: min(1120px, 100%);
-      min-height: calc(min(820px, 88vh) - 214px);
+      width: min(980px, 100%);
+      min-height: calc(min(720px, 82vh) - 184px);
       margin: 0 auto;
       transition: opacity 260ms ease, transform 320ms ease, filter 260ms ease;
     }
@@ -121,7 +121,7 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 16px;
+      gap: 12px;
       color: #fff;
     }
 
@@ -144,16 +144,16 @@
 
     .featured-info h1 {
       max-width: 13em;
-      font-size: clamp(1.2rem, 3.3vw, 4rem);
+      font-size: clamp(1rem, 2.6vw, 3rem);
       line-height: 1.03;
     }
 
     .discography-section {
       position: absolute;
       left: 50%;
-      bottom: 16px;
+      bottom: 12px;
       z-index: 3;
-      width: min(1440px, calc(100% - 24px));
+      width: min(1220px, calc(100% - 28px));
       max-height: var(--music-trigger-height);
       overflow: hidden;
       transform: translateX(-50%);
@@ -165,8 +165,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 14px;
-      width: min(1320px, 100%);
+      gap: 10px;
+      width: min(1120px, 100%);
       margin: 0 auto;
       justify-content: center;
     }
@@ -188,16 +188,16 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 38px;
-      padding: 9px 18px;
+      min-height: 34px;
+      padding: 8px 14px;
       border: 1px solid currentColor;
       border-radius: 4px;
       color: #f4f1ec;
-      font-size: 0.64rem;
+      font-size: 0.56rem;
       line-height: 1;
       text-decoration: none;
       text-transform: uppercase;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.16em;
       transition: background 180ms ease, color 180ms ease, opacity 180ms ease;
     }
 
@@ -208,14 +208,14 @@
     }
 
     .button-small {
-      padding: 7px 14px;
-      min-height: 34px;
+      padding: 6px 12px;
+      min-height: 30px;
     }
 
     .album-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: clamp(20px, 2.4vw, 36px);
+      gap: clamp(16px, 2vw, 24px);
       align-items: start;
       width: 100%;
       justify-content: center;
@@ -225,7 +225,7 @@
       display: flex;
       min-width: 0;
       flex-direction: column;
-      gap: 14px;
+      gap: 10px;
       color: #f4f1ec;
     }
 
@@ -240,19 +240,19 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: 12px;
+      gap: 10px;
     }
 
     .album-info h3 {
-      min-height: 2.8em;
-      font-size: 0.88rem;
-      line-height: 1.35;
+      min-height: 2.45em;
+      font-size: 0.72rem;
+      line-height: 1.28;
     }
 
     .music-page--discography-open .discography-section {
       bottom: 50%;
-      max-height: 74vh;
-      transform: translate(-50%, 24%);
+      max-height: 70vh;
+      transform: translate(-50%, 16%);
     }
 
     .music-page--discography-open .featured-release {
@@ -264,7 +264,7 @@
 
     @media (max-height: 900px) and (min-width: 821px) {
       .music-page {
-        --discography-art-size: clamp(172px, 13vw, 236px);
+        --discography-art-size: clamp(162px, 12.2vw, 220px);
       }
 
       .music-hero {
@@ -272,8 +272,8 @@
       }
 
       .featured-release {
-        min-height: calc(min(720px, 82vh) - 188px);
-        gap: clamp(20px, 3.5vw, 44px);
+        min-height: calc(min(660px, 78vh) - 170px);
+        gap: clamp(16px, 3vw, 32px);
       }
 
       .featured-info {
@@ -281,40 +281,40 @@
       }
 
       .featured-info h1 {
-        font-size: clamp(1.05rem, 2.5vw, 3rem);
+        font-size: clamp(0.94rem, 2.2vw, 2.4rem);
       }
 
       .discography-section {
         bottom: 12px;
-        width: min(1320px, calc(100% - 32px));
+        width: min(1100px, calc(100% - 32px));
       }
 
       .discography-section__inner {
-        gap: 12px;
+        gap: 9px;
       }
 
       .music-page--discography-open .discography-section {
-        max-height: 70vh;
-        transform: translate(-50%, 18%);
+        max-height: 66vh;
+        transform: translate(-50%, 12%);
       }
 
       .album-grid {
-        gap: 18px;
+        gap: 14px;
       }
 
       .album-card {
-        gap: 12px;
+        gap: 9px;
       }
 
       .album-info h3 {
-        min-height: 2.5em;
-        font-size: 0.76rem;
+        min-height: 2.3em;
+        font-size: 0.68rem;
       }
     }
 
     @media (max-height: 780px) and (min-width: 821px) {
       .music-page {
-        --discography-art-size: clamp(150px, 11.5vw, 200px);
+        --discography-art-size: clamp(142px, 10.8vw, 188px);
       }
 
       .music-hero {
@@ -322,11 +322,11 @@
       }
 
       .featured-release {
-        min-height: calc(min(660px, 78vh) - 176px);
+        min-height: calc(min(620px, 74vh) - 162px);
       }
 
       .featured-info h1 {
-        font-size: clamp(0.96rem, 2.1vw, 2.4rem);
+        font-size: clamp(0.88rem, 1.9vw, 2rem);
       }
 
       .discography-section {
@@ -334,24 +334,24 @@
       }
 
       .music-page--discography-open .discography-section {
-        max-height: 68vh;
-        transform: translate(-50%, 14%);
+        max-height: 64vh;
+        transform: translate(-50%, 8%);
       }
 
       .album-info h3 {
-        min-height: 2.25em;
-        font-size: 0.7rem;
+        min-height: 2.15em;
+        font-size: 0.64rem;
       }
 
       .button {
-        min-height: 34px;
-        padding: 8px 14px;
-        font-size: 0.56rem;
+        min-height: 30px;
+        padding: 7px 12px;
+        font-size: 0.5rem;
       }
 
       .button-small {
-        min-height: 30px;
-        padding: 6px 12px;
+        min-height: 28px;
+        padding: 5px 10px;
       }
     }
 
