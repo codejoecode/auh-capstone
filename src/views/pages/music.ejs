@@ -262,92 +262,18 @@
       pointer-events: none;
     }
 
-    @media (max-height: 900px) and (min-width: 821px) {
+    @media (max-height: 980px) and (min-width: 821px) {
       .music-page {
-        --discography-art-size: clamp(186px, 13.8vw, 256px);
-      }
-
-      .music-hero {
-        padding: 108px 18px 18px;
-      }
-
-      .featured-release {
-        grid-template-columns: minmax(200px, 360px) minmax(0, 1fr);
-        width: min(1020px, 100%);
-        min-height: calc(min(720px, 82vh) - 190px);
-        gap: clamp(18px, 3.4vw, 40px);
-      }
-
-      .featured-info {
-        gap: 12px;
-      }
-
-      .featured-info h1 {
-        font-size: clamp(1.05rem, 2.5vw, 3rem);
-      }
-
-      .discography-section {
-        bottom: 12px;
-        width: min(1200px, calc(100% - 32px));
-      }
-
-      .discography-section__inner {
-        gap: 10px;
-      }
-
-      .music-page--discography-open .discography-section {
-        max-height: 68vh;
-        transform: translate(-50%, 10%);
-      }
-
-      .album-grid {
-        gap: 16px;
-      }
-
-      .album-card {
-        gap: 10px;
-      }
-
-      .album-info h3 {
-        min-height: 2.35em;
-        font-size: 0.74rem;
-        line-height: 1.26;
-      }
-
-      .button {
-        min-height: 34px;
-        padding: 8px 14px;
-        font-size: 0.56rem;
-      }
-
-      .button-small {
-        min-height: 32px;
-        padding: 6px 12px;
-      }
-    }
-
-    @media (max-height: 780px) and (min-width: 821px) {
-      .music-page {
-        --discography-art-size: clamp(168px, 12.2vw, 224px);
-      }
-
-      .music-hero {
-        padding-top: 102px;
-      }
-
-      .featured-release {
-        grid-template-columns: minmax(184px, 320px) minmax(0, 1fr);
-        width: min(940px, 100%);
-        min-height: calc(min(680px, 78vh) - 186px);
-      }
-
-      .featured-info h1 {
-        font-size: clamp(0.96rem, 2.15vw, 2.4rem);
+        --discography-art-size: clamp(170px, 12.8vw, 228px);
       }
 
       .discography-section {
         bottom: 10px;
-        width: min(1120px, calc(100% - 32px));
+        width: min(1160px, calc(100% - 32px));
+      }
+
+      .discography-section__inner {
+        gap: 9px;
       }
 
       .music-page--discography-open .discography-section {
@@ -359,19 +285,56 @@
         gap: 14px;
       }
 
+      .album-card {
+        gap: 9px;
+      }
+
       .album-info h3 {
         min-height: 2.25em;
         font-size: 0.68rem;
+        line-height: 1.22;
       }
 
       .button {
-        min-height: 30px;
+        min-height: 32px;
         padding: 7px 12px;
-        font-size: 0.5rem;
+        font-size: 0.52rem;
       }
 
       .button-small {
         min-height: 30px;
+        padding: 5px 11px;
+      }
+    }
+
+    @media (max-height: 780px) and (min-width: 821px) {
+      .music-page {
+        --discography-art-size: clamp(156px, 11.4vw, 208px);
+      }
+
+      .discography-section {
+        bottom: 8px;
+        width: min(1080px, calc(100% - 32px));
+      }
+
+      .music-page--discography-open .discography-section {
+        max-height: 60vh;
+        transform: translate(-50%, 1%);
+      }
+
+      .album-info h3 {
+        min-height: 2.1em;
+        font-size: 0.64rem;
+      }
+
+      .button {
+        min-height: 28px;
+        padding: 6px 10px;
+        font-size: 0.48rem;
+      }
+
+      .button-small {
+        min-height: 28px;
         padding: 5px 10px;
       }
     }
